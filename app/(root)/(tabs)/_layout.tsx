@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 import { Image, View } from "react-native";
 
 type TabIconProps = {
-  icon: "home" | "chat" | "profile" | "rides";
+  icon: "home" | "products" | "profile";
   focused: boolean;
 };
 
@@ -11,8 +11,8 @@ function TabIcon({ icon, focused }: TabIconProps) {
   const source =
     icon === "home"
       ? icons.home
-      : icon === "chat"
-        ? icons.chat
+      : icon === "products"
+        ? icons.list
         : icon === "profile"
           ? icons.profile
           : icons.list;
@@ -36,7 +36,7 @@ function TabIcon({ icon, focused }: TabIconProps) {
             opacity: focused ? 1 : 0.4,
           }}
           resizeMode="contain"
-          className="w-7 h-7"
+          className="w-9 h-7"
         />
       </View>
     </View>
@@ -79,10 +79,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="products"
         options={{
-          title: "Rides",
+          title: "Products",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="rides" />
+            <TabIcon focused={focused} icon="products" />
           ),
         }}
       />

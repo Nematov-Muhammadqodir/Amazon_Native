@@ -1,11 +1,11 @@
+import HomeLayout from "@/components/layouts/HomeLayout";
 import React from "react";
 import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function home() {
   return (
-    <SafeAreaView>
-      <Text className="">home</Text>
-    </SafeAreaView>
+    <HomeLayout>
+      <Text className="color-red-800">home</Text>
+    </HomeLayout>
   );
 }

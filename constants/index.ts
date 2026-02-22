@@ -27,10 +27,39 @@ import check from "@/assets/images/check.png";
 import message from "@/assets/images/message.png";
 import noResult from "@/assets/images/no-result.png";
 
+//LOGO
+import group from "@/assets/logo/Group 147152.png";
+import group2 from "@/assets/logo/Group 147153.png";
+import green_K from "@/assets/logo/green-K.png";
+import green_a from "@/assets/logo/green-a.png";
+import green_d from "@/assets/logo/green-d.png";
+import green_i from "@/assets/logo/green-i.png";
+import yellow_A from "@/assets/logo/yellow-A.png";
+import yellow_a from "@/assets/logo/yellow-aa.png";
+import yellow_c from "@/assets/logo/yellow-c.png";
+import yellow_h from "@/assets/logo/yellow-h.png";
+import yellow_i from "@/assets/logo/yellow-i.png";
+import yellow_n from "@/assets/logo/yellow-n.png";
+
 export const images = {
   check,
   noResult,
   message,
+};
+
+export const logo = {
+  yellow_A,
+  yellow_n,
+  yellow_a,
+  yellow_c,
+  yellow_h,
+  yellow_i,
+  green_K,
+  green_a,
+  green_d,
+  green_i,
+  group,
+  group2,
 };
 
 export const icons = {

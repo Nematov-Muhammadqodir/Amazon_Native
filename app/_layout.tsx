@@ -3,6 +3,7 @@ import { ApolloProvider } from "@apollo/client/react";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import { MenuProvider } from "react-native-popup-menu";
 import "react-native-reanimated";
 
 export default function RootLayout() {
@@ -26,11 +27,13 @@ export default function RootLayout() {
   }
   return (
     <ApolloProvider client={client}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(root)" options={{ headerShown: false }} />
-      </Stack>
+      <MenuProvider>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(root)" options={{ headerShown: false }} />
+        </Stack>
+      </MenuProvider>
     </ApolloProvider>
   );
 }

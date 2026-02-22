@@ -1,3 +1,4 @@
+import "@/global.css";
 import { getToken, updateUserInfo } from "@/libs/auth";
 import { Redirect, router } from "expo-router";
 import { useEffect } from "react";
