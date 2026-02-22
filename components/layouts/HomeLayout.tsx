@@ -1,17 +1,17 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "../Logo";
 import MenuDropdown from "../MenuDropdown";
+import SearchInput from "../SearchInput";
 
 export default function HomeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [showModal, setShowModal] = useState(false);
   return (
     <SafeAreaView className="flex-1 w-full bg-white flex-col">
       <View className="flex flex-col h-[215px] px-3 ">
@@ -39,6 +39,9 @@ export default function HomeLayout({
               { text: "Logout", onSelect: () => console.log("Logout") },
             ]}
           />
+        </View>
+        <View className="mt-5">
+          <SearchInput />
         </View>
       </View>
 
