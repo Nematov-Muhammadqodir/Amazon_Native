@@ -1,16 +1,10 @@
-import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-} from "react-native-popup-menu";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "../Logo";
+import MenuDropdown from "../MenuDropdown";
 
 export default function HomeLayout({
   children,
@@ -34,27 +28,17 @@ export default function HomeLayout({
         </View>
         <View className="flex flex-row w-full justify-around mt-8 items-center">
           <Logo />
-          <Menu>
-            <MenuTrigger>
-              <AntDesign name="menu" size={24} color="black" />
-            </MenuTrigger>
-            <MenuOptions customStyles={{ optionsContainer: { padding: 5 } }}>
-              <MenuOption
-                customStyles={{
-                  optionText: { fontFamily: "Jakarta-ExtraBold" },
-                }}
-                onSelect={() => router.replace("/(root)/(tabs)/profile")}
-                text="My Page"
-              />
-              <MenuOption
-                customStyles={{
-                  optionText: { fontFamily: "Jakarta-ExtraBold" },
-                }}
-                onSelect={() => console.log("Logout")}
-                text="Logout"
-              />
-            </MenuOptions>
-          </Menu>
+          <MenuDropdown
+            triggerSize={28}
+            triggerColor="black"
+            options={[
+              {
+                text: "My Page",
+                onSelect: () => router.replace("/(root)/(tabs)/profile"),
+              },
+              { text: "Logout", onSelect: () => console.log("Logout") },
+            ]}
+          />
         </View>
       </View>
 
