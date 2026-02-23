@@ -1,30 +1,22 @@
+import { images } from "@/constants";
+import { REACT_APP_API_URL } from "@/types/config";
+import { Product } from "@/types/product/product";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image, StyleSheet, Text, View } from "react-native";
 import CustomButton from "../CustomButton";
 
-export interface Product {
-  id: string;
-  imageType: string;
-  imageData: string;
-  productName: string;
-  productDescription: string;
-  productPrice: string;
-}
-
 export default function NewProductCard({ item }: { item: Product }) {
+  const imgPath = item?.productImages[0]
+    ? `${REACT_APP_API_URL}/${item?.productImages[0]}`
+    : images.noResult;
   return (
-    <View key={item.id} style={styles.mainContainer}>
+    <View key={item._id} style={styles.mainContainer}>
       <View style={styles.imageContainer}>
-        <Image
-          source={{
-            uri: `data:${item.imageType};base64,${item.imageData}`,
-          }}
-          style={styles.image}
-        />
+        <Image source={imgPath} style={styles.image} />
       </View>
       <View>
         <Text style={styles.name}>{item.productName}</Text>
-        <Text style={styles.description}>{item.productDescription}</Text>
+        <Text style={styles.description}>{item.productDesc}</Text>
         <View style={styles.priceContainer}>
           <Text style={styles.price}>₩{item.productPrice}</Text>
           <View style={styles.discountContainer}>

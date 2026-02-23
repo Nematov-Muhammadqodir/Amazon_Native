@@ -15,8 +15,8 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { createClient } from "graphql-ws";
 
-const GRAPHQL_URL = "http://192.168.0.27:3007/graphql";
-const WS_URL = "ws://192.168.0.27:3007/graphql";
+const GRAPHQL_URL = "http://192.168.0.27:3003/graphql";
+const WS_URL = "ws://192.168.0.27:3004/graphql";
 
 /* ---------------- HTTP LINK ---------------- */
 
@@ -50,7 +50,7 @@ const errorLink = onError(({ error }) => {
 
       if (err.message.includes("Unauthorized")) {
         SecureStore.deleteItemAsync("accessToken");
-        router.replace("/(auth)/welcome");
+        router.replace("/(auth)/sign-up");
       }
     });
   }

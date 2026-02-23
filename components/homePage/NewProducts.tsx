@@ -1,52 +1,50 @@
-import React, { useRef, useState } from "react";
+import { GET_PRODUCTS } from "@/apollo/user/query";
+import { Product, Products } from "@/types/product/product";
+import { ProductsInquiry } from "@/types/product/product.input";
+import { useQuery } from "@apollo/client/react";
+import React, { useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import Swiper from "react-native-swiper";
-import NewProductCard, { Product } from "./NewProduct";
+import NewProductCard from "./NewProduct";
 
-const products: Product[] = [
-  {
-    id: "1",
-    imageType: "image/png",
-    imageData: "iVBORw0KGgoAAAANSUhEUgAAAAUA", // fake base64 sample
-    productName: "Fresh Apples",
-    productDescription: "Sweet and crispy organic apples",
-    productPrice: "4500",
-  },
-  {
-    id: "2",
-    imageType: "image/png",
-    imageData: "iVBORw0KGgoAAAANSUhEUgAAAAUB",
-    productName: "Organic Milk",
-    productDescription: "Pure farm fresh milk 1L",
-    productPrice: "3200",
-  },
-  {
-    id: "3",
-    imageType: "image/png",
-    imageData: "iVBORw0KGgoAAAANSUhEUgAAAAUC",
-    productName: "Fresh Mushrooms",
-    productDescription: "Natural white mushrooms pack",
-    productPrice: "2800",
-  },
-  {
-    id: "4",
-    imageType: "image/png",
-    imageData: "iVBORw0KGgoAAAANSUhEUgAAAAUD",
-    productName: "Beef Steak",
-    productDescription: "Premium Korean beef 300g",
-    productPrice: "15900",
-  },
-  {
-    id: "5",
-    imageType: "image/png",
-    imageData: "iVBORw0KGgoAAAANSUhEUgAAAAUE",
-    productName: "Fresh Spinach",
-    productDescription: "Healthy green spinach bundle",
-    productPrice: "1900",
-  },
-];
+interface GetProductsResponse {
+  getProducts: Products;
+}
 
 export default function NewProducts() {
+  const [input, setInput] = useState<ProductsInquiry>({
+    page: 1,
+    limit: 10,
+    sort: "createdAt",
+    direction: "DESC",
+    search: {},
+  });
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const {
+    loading: getNewProductsLoading,
+    data: getNewProductsData,
+    error: getNewProductsError,
+    refetch: getNewProductsRefetch,
+  } = useQuery<GetProductsResponse>(GET_PRODUCTS, {
+    fetchPolicy: "cache-and-network",
+    variables: {
+      input: input,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+  useEffect(() => {
+    if (getNewProductsData?.getProducts) {
+      console.log(
+        "getNewProductsData",
+        getNewProductsData?.getProducts.list.length
+      );
+      setNewProducts(getNewProductsData.getProducts.list);
+      setTotalProducts(
+        getNewProductsData.getProducts.metaCounter?.[0]?.total || 0
+      );
+    }
+  }, [getNewProductsData]);
   const swiper = useRef<Swiper>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   return (
@@ -62,16 +60,16 @@ export default function NewProducts() {
         ref={swiper}
         loop={false}
         dot={
-          <View className="w-[32px] h-[4px] mx-1 bg-[#E2E8F0] rounded-full" />
+          <View className="w-[10px] h-[4px] mx-1 bg-[#E2E8F0] rounded-full" />
         }
         activeDot={
           <View className="w-[32px] h-[4px] mx-1 bg-[#0286FF] rounded-full" />
         }
         onIndexChanged={(index) => setActiveIndex(index)}
       >
-        {products.map((product: Product) => (
+        {newProducts.map((product: Product) => (
           <View
-            key={product.id}
+            key={product._id}
             style={{
               flex: 1,
               justifyContent: "center",
