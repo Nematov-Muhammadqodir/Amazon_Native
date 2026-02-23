@@ -51,7 +51,7 @@ export default function HomeLayout({
           </View>
           <BigBanner />
         </View>
-        <View className="flex-1">{children}</View>
+        <View className="flex-1 mb-[200px]">{children}</View>
       </ScrollView>
     </SafeAreaView>
   );

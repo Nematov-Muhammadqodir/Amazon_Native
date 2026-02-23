@@ -43,12 +43,30 @@ import yellow_h from "@/assets/logo/yellow-h.png";
 import yellow_i from "@/assets/logo/yellow-i.png";
 import yellow_n from "@/assets/logo/yellow-n.png";
 
+//CATEGORIES
+import fruits from "@/assets/images/basket.png";
+import all_products from "@/assets/images/food.png";
+import greens from "@/assets/images/lettuce.png";
+import meat from "@/assets/images/meat.png";
+import milk from "@/assets/images/milk.png";
+import mushroom from "@/assets/images/mushroom.png";
+import nuts from "@/assets/images/nuts.png";
+import vegetables from "@/assets/images/vegetable.png";
+
 export const images = {
   check,
   noResult,
   message,
   bannerImage,
   bigBannerText,
+  fruits,
+  meat,
+  vegetables,
+  milk,
+  greens,
+  nuts,
+  mushroom,
+  all_products,
 };
 
 export const logo = {
