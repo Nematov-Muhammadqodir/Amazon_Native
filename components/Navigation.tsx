@@ -1,10 +1,11 @@
+import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Navigation() {
   return (
     <View className="flex flex-row justify-around">
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.replace("/(root)/(tabs)/home")}>
         <Text className="font-JakartaExtraBold">Home</Text>
       </TouchableOpacity>
       <TouchableOpacity>
@@ -22,3 +23,18 @@ export default function Navigation() {
     </View>
   );
 }
+
+// import { Stack } from "expo-router";
+// import React, { Component } from "react";
+
+// export class Layout extends Component {
+//   render() {
+//     return (
+//       <Stack>
+//         <Stack.Screen name="[id]" options={{ headerShown: false }} />
+//       </Stack>
+//     );
+//   }
+// }
+
+// export default Layout;

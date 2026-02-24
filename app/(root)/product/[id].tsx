@@ -4,6 +4,7 @@ import { images } from "@/constants";
 import { REACT_APP_API_URL } from "@/types/config";
 import { Product } from "@/types/product/product";
 import { useQuery } from "@apollo/client/react";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -26,7 +27,7 @@ export default function ProductDetail() {
     error: getProductError,
     refetch: getProductRefetch,
   } = useQuery<ProductDetailInterface>(GET_PRODUCT, {
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
     variables: { input: id },
     skip: !id,
     notifyOnNetworkStatusChange: true,
@@ -70,7 +71,13 @@ export default function ProductDetail() {
 
   return (
     <HomeLayout>
-      <View className="justify-center items-center mt-10">
+      <View className="justify-center items-center mt-5">
+        <Pressable
+          onPress={() => router.back()}
+          className="mb-5 self-start pl-7"
+        >
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </Pressable>
         <View>
           <View className="w-[335px] border-[1px] border-gray-400 bg-[#DAE9CB] rounded-[10px]">
             <Image
