@@ -6,6 +6,10 @@ export const CHECK_AUTH = gql`
   }
 `;
 
+/**************************
+ *        PRODUCT        *
+ *************************/
+
 export const GET_PRODUCTS = gql`
   query GetProducts($input: ProductsInquiry!) {
     getProducts(input: $input) {
@@ -66,6 +70,66 @@ export const GET_PRODUCTS = gql`
       }
       metaCounter {
         total
+      }
+    }
+  }
+`;
+
+export const GET_PRODUCT = gql`
+  query GetProduct($input: String!) {
+    getProduct(productId: $input) {
+      _id
+      productCollection
+      productStatus
+      productName
+      productPrice
+      productViews
+      productLikes
+      productComments
+      productRank
+      productImages
+      productDesc
+      productOwnerId
+      deletedAt
+      createdAt
+      updatedAt
+      productOriginPrice
+      productVolume
+      productLeftCount
+      productSoldCount
+      productOrigin
+      productDiscountRate
+      productOwnerData {
+        _id
+        memberType
+        memberStatus
+        memberAuthType
+        memberPhone
+        memberNick
+        memberFullName
+        memberImage
+        memberAddress
+        memberDesc
+        memberProducts
+        memberArticles
+        memberFollowers
+        memberFollowings
+        memberPoints
+        memberLikes
+        memberViews
+        memberComments
+        memberRank
+        memberWarnings
+        memberBlocks
+        deletedAt
+        createdAt
+        updatedAt
+        accessToken
+      }
+      meLiked {
+        memberId
+        likeRefId
+        myFavorite
       }
     }
   }

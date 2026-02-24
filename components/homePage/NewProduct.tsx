@@ -2,7 +2,8 @@ import { images } from "@/constants";
 import { REACT_APP_API_URL } from "@/types/config";
 import { Product } from "@/types/product/product";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import CustomButton from "../CustomButton";
 
 export default function NewProductCard({ item }: { item: Product }) {
@@ -10,36 +11,40 @@ export default function NewProductCard({ item }: { item: Product }) {
     ? `${REACT_APP_API_URL}/${item?.productImages[0]}`
     : images.noResult;
   return (
-    <View key={item._id} style={styles.mainContainer}>
-      <View style={styles.imageContainer}>
-        <Image source={imgPath} style={styles.image} />
-      </View>
-      <View>
-        <Text style={styles.name}>{item.productName}</Text>
-        <Text style={styles.description}>{item.productDesc}</Text>
-        <View style={styles.priceContainer}>
-          <Text style={styles.price}>₩{item.productPrice}</Text>
-          <View style={styles.discountContainer}>
-            <Text style={styles.discountAmount}>-10%</Text>
+    <Pressable onPress={() => router.push(`/product/${item._id}`)}>
+      <View key={item._id} style={styles.mainContainer}>
+        <View style={styles.imageContainer}>
+          <Image source={imgPath} style={styles.image} />
+        </View>
+        <View>
+          <Text style={styles.name}>{item.productName}</Text>
+          <Text style={styles.description}>{item.productDesc}</Text>
+          <View style={styles.priceContainer}>
+            <Text style={styles.price}>₩{item.productPrice}</Text>
+            <View style={styles.discountContainer}>
+              <Text style={styles.discountAmount}>
+                -{item.productDiscountRate}%
+              </Text>
+            </View>
+          </View>
+          <View className="mt-5">
+            <CustomButton
+              title="Add to card"
+              bgVariant="light-green"
+              textVariant="green"
+              IconLeft={
+                <MaterialIcons
+                  name="add-shopping-cart"
+                  size={24}
+                  color="#1D805C"
+                />
+              }
+              className="gap-2"
+            />
           </View>
         </View>
-        <View className="mt-5">
-          <CustomButton
-            title="Add to card"
-            bgVariant="light-green"
-            textVariant="green"
-            IconLeft={
-              <MaterialIcons
-                name="add-shopping-cart"
-                size={24}
-                color="#1D805C"
-              />
-            }
-            className="gap-2"
-          />
-        </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
