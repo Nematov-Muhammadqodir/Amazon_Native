@@ -49,7 +49,7 @@ export default function HomeLayout({
             <Navigation />
           </View>
         </View>
-        <View className="flex-1 mb-[200px]">{children}</View>
+        <View className="flex-1 mb-[200px] px-7">{children}</View>
       </ScrollView>
     </SafeAreaView>
   );
