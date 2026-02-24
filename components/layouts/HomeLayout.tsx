@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import React from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BigBanner from "../BigBanner";
 import Logo from "../Logo";
 import MenuDropdown from "../MenuDropdown";
 import Navigation from "../Navigation";
@@ -49,7 +48,6 @@ export default function HomeLayout({
           <View className="mt-5">
             <Navigation />
           </View>
-          <BigBanner />
         </View>
         <View className="flex-1 mb-[200px]">{children}</View>
       </ScrollView>

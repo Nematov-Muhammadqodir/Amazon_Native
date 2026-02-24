@@ -1,10 +1,19 @@
 import { GET_PRODUCT } from "@/apollo/user/query";
+import HomeLayout from "@/components/layouts/HomeLayout";
 import { images } from "@/constants";
+import { REACT_APP_API_URL } from "@/types/config";
 import { Product } from "@/types/product/product";
 import { useQuery } from "@apollo/client/react";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
-import { ActivityIndicator, Alert, Image, Text, View } from "react-native";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 
 interface ProductDetailInterface {
   getProduct: Product;
@@ -23,8 +32,9 @@ export default function ProductDetail() {
     notifyOnNetworkStatusChange: true,
   });
 
-  console.log("getProductData", getProductData?.getProduct);
   const product = getProductData?.getProduct;
+  const [activeImage, setActiveImage] = useState<string>("");
+  console.log("activeImage", activeImage);
 
   if (getProductLoading)
     return (
@@ -53,11 +63,47 @@ export default function ProductDetail() {
       </View>
     );
 
+  const imgPath =
+    product?.productImages.length !== 0
+      ? `${REACT_APP_API_URL}/${product?.productImages[0]}`
+      : images.noResult;
+
   return (
-    <View>
-      <Text>{product.productName}</Text>
-      <Text>{product.productDesc}</Text>
-      <Text>₩{product.productPrice}</Text>
-    </View>
+    <HomeLayout>
+      <View className="justify-center items-center mt-10">
+        <View>
+          <View className="w-[335px] border-[1px] border-gray-400 bg-[#DAE9CB] rounded-[10px]">
+            <Image
+              source={{ uri: activeImage ? activeImage : imgPath }}
+              className="self-center w-[155px] h-[195px]"
+            />
+          </View>
+          {product.productImages.length < 2 && (
+            <View className="flex flex-row flex-nowrap justify-between mt-4">
+              {product.productImages.slice(0).map((image) => {
+                const smallImagePath =
+                  product?.productImages.length !== 0
+                    ? `${REACT_APP_API_URL}/${image}`
+                    : images.noResult;
+                return (
+                  <Pressable
+                    className=" justify-start w-[75px] border-[1px] border-gray-400 rounded-[10px]"
+                    key={image}
+                    onPress={() =>
+                      setActiveImage(`${REACT_APP_API_URL}/${image}`)
+                    }
+                  >
+                    <Image
+                      source={{ uri: smallImagePath }}
+                      className="w-[65px] h-[75px] self-center"
+                    />
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </View>
+      </View>
+    </HomeLayout>
   );
 }
