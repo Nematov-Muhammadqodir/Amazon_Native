@@ -21,7 +21,7 @@ interface CustomJwtPayload {
   memberImage?: string;
   memberAddress?: string;
   memberDesc?: string;
-  memberProperties: number;
+  memberProducts: number;
   memberRank: number;
   memberArticles: number;
   memberPoints: number;
@@ -84,7 +84,7 @@ export const signUp = async (
     await saveToken(jwtToken);
     updateUserInfo(jwtToken);
 
-    router.replace("/(tabs)/explore");
+    router.replace("/(root)/(tabs)/home");
   } catch (err) {
     console.log("SignUp error:", err);
     throw err;
@@ -142,7 +142,7 @@ export const updateUserInfo = (jwtToken: string) => {
     memberImage: claims.memberImage ?? null,
     memberAddress: claims.memberAddress ?? "",
     memberDesc: claims.memberDesc ?? "",
-    memberProperties: claims.memberProperties ?? 0,
+    memberProducts: claims.memberProducts ?? 0,
     memberRank: claims.memberRank ?? 0,
     memberArticles: claims.memberArticles ?? 0,
     memberPoints: claims.memberPoints ?? 0,
@@ -191,7 +191,7 @@ export const logOut = async () => {
     memberImage: null,
     memberAddress: "",
     memberDesc: "",
-    memberProperties: 0,
+    memberProducts: 0,
     memberRank: 0,
     memberArticles: 0,
     memberPoints: 0,
@@ -201,5 +201,5 @@ export const logOut = async () => {
     memberBlocks: 0,
   });
 
-  router.replace("/(auth)/welcome");
+  router.replace("/(auth)/sign-up");
 };
