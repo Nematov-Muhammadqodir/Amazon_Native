@@ -19,12 +19,12 @@ export default function Category() {
     { category: "Greens", image: images.greens },
   ];
   return (
-    <View className="flex justify-center items-center">
+    <View className="flex justify-center items-center mt-10">
       <Text className="text-[20px] font-JakartaExtraBold">Category</Text>
-      <View className="flex flex-row flex-wrap gap-3 justify-center mt-3">
+      <View className="flex flex-row flex-wrap gap-3 justify-between mt-3 w-[100%]">
         {categories.map((category: CategoryInterface, index) => (
-          <TouchableOpacity className="p-4 bg-[#E9EEEA] rounded-xl" key={index}>
-            <Image source={category.image} className="w-[50px] h-[50px]" />
+          <TouchableOpacity className="p-3 bg-[#E9EEEA] rounded-xl" key={index}>
+            <Image source={category.image} className="w-[45px] h-[45px]" />
           </TouchableOpacity>
         ))}
       </View>

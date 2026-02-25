@@ -1,4 +1,5 @@
 import { GET_PRODUCT } from "@/apollo/user/query";
+import CustomButton from "@/components/CustomButton";
 import HorizontalLine from "@/components/HorizontalLine";
 import HomeLayout from "@/components/layouts/HomeLayout";
 import RatingStars from "@/components/RatingStars";
@@ -6,7 +7,9 @@ import { images } from "@/constants";
 import { REACT_APP_API_URL } from "@/types/config";
 import { Product } from "@/types/product/product";
 import { useQuery } from "@apollo/client/react";
+import Entypo from "@expo/vector-icons/Entypo";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -22,6 +25,7 @@ interface ProductDetailInterface {
   getProduct: Product;
 }
 export default function ProductDetail() {
+  const [count, setCount] = useState(0);
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
     loading: getProductLoading,
@@ -134,6 +138,105 @@ export default function ProductDetail() {
             )}
             <RatingStars rating={4} />
           </View>
+
+          <View className="flex flex-row gap-3 items-center">
+            <View className="flex flex-row gap-2 items-center">
+              <Entypo name="dot-single" size={44} color="#17B63A" />
+              <View>
+                <Text className="font-JakartaExtraBold color-[#17B63A] text-[20px]">
+                  In Stock
+                </Text>
+                <Text className="color-gray-600 font-JakartaMedium">
+                  In stock, ready to be shipped.
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View className="flex flex-row gap-3 items-center justify-between">
+            <View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">Type:</Text>
+                <Text>{product.productCollection}</Text>
+              </View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Origin price:
+                </Text>
+                <Text>{product.productOriginPrice}</Text>
+              </View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Discound:
+                </Text>
+                <Text>{product.productDiscountRate}%</Text>
+              </View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Left count:
+                </Text>
+                <Text>{product.productLeftCount}</Text>
+              </View>
+            </View>
+            <View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Origin:
+                </Text>
+                <Text>{product.productOrigin}</Text>
+              </View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Sold count:
+                </Text>
+                <Text>{product.productSoldCount}</Text>
+              </View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Views:
+                </Text>
+                <Text>{product.productViews}</Text>
+              </View>
+              <View className="flex flex-row gap-2 items-end">
+                <Text className="font-JakartaExtraBold text-[16px]">
+                  Volume:
+                </Text>
+                <Text>{product.productVolume}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <HorizontalLine />
+
+        <View className="mt-7">
+          <View className="flex flex-row justify-between w-[100%]">
+            <View className="w-[160px] flex flex-row justify-between border-2 items-center px-5 rounded-full border-[#2D4D23]">
+              <Pressable onPress={() => setCount((prev) => prev - 1)}>
+                <Text className="font-JakartaExtraBold text-[20px]">-</Text>
+              </Pressable>
+
+              <Text className="font-JakartaExtraBold text-[20px]">{count}</Text>
+              <Pressable onPress={() => setCount((prev) => prev + 1)}>
+                <Text className="font-JakartaExtraBold text-[20px]">+</Text>
+              </Pressable>
+            </View>
+            <CustomButton
+              title="Add To Cart"
+              className="w-[170px] bg-white border-[#2D4D23] border-2"
+              textVariant="green"
+            />
+          </View>
+          <CustomButton
+            title="BUY IT NOW"
+            className="w-[342px] mt-3 bg-[#265B4E]"
+          />
+        </View>
+
+        <View className="self-start mt-5 flex flex-row items-end gap-2">
+          <MaterialIcons name="money-off" size={24} color="black" />
+          <Text className="text-[16px] font-JakartaSemiBold">
+            Free Return Within 30 Days Of Purchase
+          </Text>
         </View>
       </View>
     </HomeLayout>
