@@ -1,5 +1,6 @@
 import { GET_PRODUCT } from "@/apollo/user/query";
 import CustomButton from "@/components/CustomButton";
+import FeaturedProducts from "@/components/FeaturedProducts";
 import HorizontalLine from "@/components/HorizontalLine";
 import HomeLayout from "@/components/layouts/HomeLayout";
 import RatingStars from "@/components/RatingStars";
@@ -73,7 +74,7 @@ export default function ProductDetail() {
   const imgPath =
     product?.productImages.length !== 0
       ? `${REACT_APP_API_URL}/${product?.productImages[0]}`
-      : images.noResult;
+      : `${REACT_APP_API_URL}/${product?.productImages[0]}`;
 
   const productDiscountedPrice =
     Number(product.productPrice) -
@@ -208,9 +209,9 @@ export default function ProductDetail() {
         </View>
         <HorizontalLine />
 
-        <View className="mt-7">
+        <View className="mt-7 flex justify-center items-center w-[100%]}">
           <View className="flex flex-row justify-between w-[100%]">
-            <View className="w-[160px] flex flex-row justify-between border-2 items-center px-5 rounded-full border-[#2D4D23]">
+            <View className="w-[150px] flex flex-row justify-between border-2 items-center px-5 rounded-full border-[#2D4D23]">
               <Pressable onPress={() => setCount((prev) => prev - 1)}>
                 <Text className="font-JakartaExtraBold text-[20px]">-</Text>
               </Pressable>
@@ -222,13 +223,13 @@ export default function ProductDetail() {
             </View>
             <CustomButton
               title="Add To Cart"
-              className="w-[170px] bg-white border-[#2D4D23] border-2"
+              className="w-[190px] bg-white border-[#2D4D23] border-2"
               textVariant="green"
             />
           </View>
           <CustomButton
             title="BUY IT NOW"
-            className="w-[342px] mt-3 bg-[#265B4E]"
+            className="w-[372px] mt-3 bg-[#265B4E]"
           />
         </View>
 
@@ -237,6 +238,18 @@ export default function ProductDetail() {
           <Text className="text-[16px] font-JakartaSemiBold">
             Free Return Within 30 Days Of Purchase
           </Text>
+        </View>
+
+        <HorizontalLine />
+
+        <View className="mt-10">
+          <Text className="text-center text-2xl font-JakartaExtraBold mb-3">
+            Featured Products
+          </Text>
+          <FeaturedProducts
+            collection={product.productCollection}
+            id={product._id}
+          />
         </View>
       </View>
     </HomeLayout>

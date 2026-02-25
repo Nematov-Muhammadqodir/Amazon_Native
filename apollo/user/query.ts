@@ -37,30 +37,11 @@ export const GET_PRODUCTS = gql`
         updatedAt
         productOwnerData {
           _id
-          memberType
-          memberStatus
-          memberAuthType
           memberPhone
           memberNick
           memberFullName
           memberImage
           memberAddress
-          memberDesc
-          memberProducts
-          memberArticles
-          memberFollowers
-          memberFollowings
-          memberPoints
-          memberLikes
-          memberViews
-          memberComments
-          memberRank
-          memberWarnings
-          memberBlocks
-          deletedAt
-          createdAt
-          updatedAt
-          accessToken
         }
         meLiked {
           memberId
@@ -101,30 +82,11 @@ export const GET_PRODUCT = gql`
       productDiscountRate
       productOwnerData {
         _id
-        memberType
-        memberStatus
-        memberAuthType
         memberPhone
         memberNick
         memberFullName
         memberImage
         memberAddress
-        memberDesc
-        memberProducts
-        memberArticles
-        memberFollowers
-        memberFollowings
-        memberPoints
-        memberLikes
-        memberViews
-        memberComments
-        memberRank
-        memberWarnings
-        memberBlocks
-        deletedAt
-        createdAt
-        updatedAt
-        accessToken
       }
       meLiked {
         memberId

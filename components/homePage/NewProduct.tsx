@@ -1,4 +1,3 @@
-import { images } from "@/constants";
 import { REACT_APP_API_URL } from "@/types/config";
 import { Product } from "@/types/product/product";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -9,12 +8,12 @@ import CustomButton from "../CustomButton";
 export default function NewProductCard({ item }: { item: Product }) {
   const imgPath = item?.productImages[0]
     ? `${REACT_APP_API_URL}/${item?.productImages[0]}`
-    : images.noResult;
+    : `${REACT_APP_API_URL}/${item?.productImages[0]}`;
   return (
     <Pressable onPress={() => router.push(`/product/${item._id}`)}>
       <View key={item._id} style={styles.mainContainer}>
         <View style={styles.imageContainer}>
-          <Image source={imgPath} style={styles.image} />
+          <Image source={{ uri: imgPath }} style={styles.image} />
         </View>
         <View>
           <Text style={styles.name}>{item.productName}</Text>

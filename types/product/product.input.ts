@@ -1,11 +1,10 @@
+import { Direction } from "@/libs/enums/common.enum";
 import {
   ProductCollection,
   ProductFrom,
   ProductStatus,
   ProductVolume,
-} from "../../enums/product.enum";
-
-import { Direction } from "../../enums/common.enum";
+} from "@/libs/enums/product.enum";
 
 export interface ProductInput {
   productCollection: ProductCollection;
