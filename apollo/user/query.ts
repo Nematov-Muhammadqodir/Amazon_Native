@@ -96,3 +96,54 @@ export const GET_PRODUCT = gql`
     }
   }
 `;
+
+/**************************
+ *         COMMENT        *
+ *************************/
+
+export const GET_COMMENTS = gql`
+  query GetComments($input: CommentsInquiry!) {
+    getComments(input: $input) {
+      list {
+        _id
+        commentStatus
+        commentGroup
+        commentContent
+        commentRefId
+        memberId
+        createdAt
+        updatedAt
+        memberData {
+          _id
+          memberType
+          memberStatus
+          memberAuthType
+          memberPhone
+          memberNick
+          memberFullName
+          memberImage
+          memberAddress
+          memberDesc
+          memberProducts
+          memberArticles
+          memberFollowers
+          memberFollowings
+          memberPoints
+          memberLikes
+          memberViews
+          memberComments
+          memberRank
+          memberWarnings
+          memberBlocks
+          deletedAt
+          createdAt
+          updatedAt
+          accessToken
+        }
+      }
+      metaCounter {
+        total
+      }
+    }
+  }
+`;

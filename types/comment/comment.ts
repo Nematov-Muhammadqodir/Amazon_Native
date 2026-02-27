@@ -1,4 +1,4 @@
-import { CommentGroup, CommentStatus } from "../../enums/comment.enum";
+import { CommentGroup, CommentStatus } from "@/libs/enums/comment.enum";
 import { Member } from "../member/member";
 import { MeLiked, TotalCounter } from "../product/product";
 

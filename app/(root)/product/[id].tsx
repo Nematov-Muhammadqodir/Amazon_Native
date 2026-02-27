@@ -1,18 +1,21 @@
-import { GET_PRODUCT } from "@/apollo/user/query";
+import { GET_COMMENTS } from "@/apollo/user/query";
 import CustomButton from "@/components/CustomButton";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import HorizontalLine from "@/components/HorizontalLine";
 import HomeLayout from "@/components/layouts/HomeLayout";
 import RatingStars from "@/components/RatingStars";
+import TestimonialCard from "@/components/TestimonialCard";
 import { images } from "@/constants";
+import { useProduct } from "@/hooks/useProduct";
+import { Comment, Comments } from "@/types/comment/comment";
+import { CommentsInquiry } from "@/types/comment/comment.input";
 import { REACT_APP_API_URL } from "@/types/config";
-import { Product } from "@/types/product/product";
 import { useQuery } from "@apollo/client/react";
 import Entypo from "@expo/vector-icons/Entypo";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -22,27 +25,63 @@ import {
   View,
 } from "react-native";
 
-interface ProductDetailInterface {
-  getProduct: Product;
+interface GetComments {
+  getComments: Comments;
 }
+
+const DEFAULT_COMMENT_INQUIRY: CommentsInquiry = {
+  page: 1,
+  limit: 5,
+  sort: "createdAt",
+  direction: "DESC",
+  search: {
+    commentRefId: "",
+  },
+};
 export default function ProductDetail() {
   const [count, setCount] = useState(0);
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(
+    DEFAULT_COMMENT_INQUIRY
+  );
+  useEffect(() => {
+    if (!id) return;
+
+    setCommentInquiry((prev) => ({
+      ...prev,
+      search: { commentRefId: id },
+    }));
+  }, [id]);
+  console.log("id", commentInquiry.search.commentRefId);
+
+  //GET_PRODUCT
   const {
-    loading: getProductLoading,
-    data: getProductData,
-    error: getProductError,
-    refetch: getProductRefetch,
-  } = useQuery<ProductDetailInterface>(GET_PRODUCT, {
-    fetchPolicy: "cache-and-network",
-    variables: { input: id },
-    skip: !id,
+    getProductLoading,
+    getProductData,
+    getProductError,
+    getProductRefetch,
+  } = useProduct(id);
+
+  //GET_COMMENTS
+  console.log("commentInquiry", commentInquiry);
+  const {
+    loading: getCommentsLoading,
+    data: getCommentsData,
+    error: getCommentsError,
+    refetch: getCommentsRefetch,
+  } = useQuery<GetComments>(GET_COMMENTS, {
+    fetchPolicy: "network-only",
+    variables: { input: commentInquiry },
+
     notifyOnNetworkStatusChange: true,
   });
 
+  const comments = getCommentsData?.getComments.list;
+
+  console.log("comments", comments);
+
   const product = getProductData?.getProduct;
   const [activeImage, setActiveImage] = useState<string>("");
-  console.log("activeImage", activeImage);
 
   if (getProductLoading)
     return (
@@ -209,8 +248,8 @@ export default function ProductDetail() {
         </View>
         <HorizontalLine />
 
-        <View className="mt-7 flex justify-center items-center w-[100%]}">
-          <View className="flex flex-row justify-between w-[100%]">
+        <View className="mt-7 flex justify-center items-center w-full">
+          <View className="flex flex-row justify-between w-full gap-2">
             <View className="w-[150px] flex flex-row justify-between border-2 items-center px-5 rounded-full border-[#2D4D23]">
               <Pressable onPress={() => setCount((prev) => prev - 1)}>
                 <Text className="font-JakartaExtraBold text-[20px]">-</Text>
@@ -229,7 +268,7 @@ export default function ProductDetail() {
           </View>
           <CustomButton
             title="BUY IT NOW"
-            className="w-[372px] mt-3 bg-[#265B4E]"
+            className="w-[342px] mt-3 bg-[#265B4E]"
           />
         </View>
 
@@ -250,6 +289,15 @@ export default function ProductDetail() {
             collection={product.productCollection}
             id={product._id}
           />
+        </View>
+
+        <View className="mt-10">
+          <Text>Customer Testimonials</Text>
+          <View>
+            {comments?.map((comment: Comment) => (
+              <TestimonialCard />
+            ))}
+          </View>
         </View>
       </View>
     </HomeLayout>
