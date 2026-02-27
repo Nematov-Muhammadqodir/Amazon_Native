@@ -292,10 +292,14 @@ export default function ProductDetail() {
         </View>
 
         <View className="mt-10">
-          <Text>Customer Testimonials</Text>
-          <View>
-            {comments?.map((comment: Comment) => (
-              <TestimonialCard />
+          <Text className="text-2xl font-JakartaBold self-center">
+            Customer Testimonials
+          </Text>
+          <View className="mt-3">
+            {comments?.map((comment: Comment, index) => (
+              <View key={index}>
+                <TestimonialCard comment={comment} />
+              </View>
             ))}
           </View>
         </View>
