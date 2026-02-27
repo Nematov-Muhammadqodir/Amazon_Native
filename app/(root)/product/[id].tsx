@@ -38,48 +38,31 @@ const DEFAULT_COMMENT_INQUIRY: CommentsInquiry = {
     commentRefId: "",
   },
 };
+
 export default function ProductDetail() {
   const [count, setCount] = useState(0);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(
     DEFAULT_COMMENT_INQUIRY
   );
+
   useEffect(() => {
     if (!id) return;
-
     setCommentInquiry((prev) => ({
       ...prev,
       search: { commentRefId: id },
     }));
   }, [id]);
-  console.log("id", commentInquiry.search.commentRefId);
 
-  //GET_PRODUCT
-  const {
-    getProductLoading,
-    getProductData,
-    getProductError,
-    getProductRefetch,
-  } = useProduct(id);
+  const { getProductLoading, getProductData, getProductError } = useProduct(id);
 
-  //GET_COMMENTS
-  console.log("commentInquiry", commentInquiry);
-  const {
-    loading: getCommentsLoading,
-    data: getCommentsData,
-    error: getCommentsError,
-    refetch: getCommentsRefetch,
-  } = useQuery<GetComments>(GET_COMMENTS, {
+  const { data: getCommentsData } = useQuery<GetComments>(GET_COMMENTS, {
     fetchPolicy: "network-only",
     variables: { input: commentInquiry },
-
     notifyOnNetworkStatusChange: true,
   });
 
   const comments = getCommentsData?.getComments.list;
-
-  console.log("comments", comments);
-
   const product = getProductData?.getProduct;
   const [activeImage, setActiveImage] = useState<string>("");
 
@@ -89,17 +72,15 @@ export default function ProductDetail() {
         <ActivityIndicator size="large" color="#0286FF" />
       </View>
     );
+
   if (getProductError)
     return Alert.alert(
       "Error",
       "Something went wrong!",
-      [
-        {
-          onPress: () => router.push("/(root)/(tabs)/home"),
-        },
-      ],
+      [{ onPress: () => router.push("/(root)/(tabs)/home") }],
       { cancelable: false }
     );
+
   if (!product)
     return (
       <View className="flex-1 justify-center items-center">
@@ -110,11 +91,7 @@ export default function ProductDetail() {
       </View>
     );
 
-  const imgPath =
-    product?.productImages.length !== 0
-      ? `${REACT_APP_API_URL}/${product?.productImages[0]}`
-      : `${REACT_APP_API_URL}/${product?.productImages[0]}`;
-
+  const imgPath = `${REACT_APP_API_URL}/${product?.productImages[0]}`;
   const productDiscountedPrice =
     Number(product.productPrice) -
     (Number(product.productPrice) * product.productDiscountRate) / 100;
@@ -122,7 +99,7 @@ export default function ProductDetail() {
   return (
     <HomeLayout>
       <View className="justify-center items-center mt-5">
-        <Pressable onPress={() => router.back()} className="mb-5 self-start ">
+        <Pressable onPress={() => router.back()} className="mb-5 self-start">
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
         <View>
@@ -134,13 +111,10 @@ export default function ProductDetail() {
           </View>
           <View className="flex flex-row flex-nowrap justify-between mt-4">
             {product.productImages.slice(0).map((image) => {
-              const smallImagePath =
-                product?.productImages.length !== 0
-                  ? `${REACT_APP_API_URL}/${image}`
-                  : images.noResult;
+              const smallImagePath = `${REACT_APP_API_URL}/${image}`;
               return (
                 <Pressable
-                  className=" justify-start w-[75px] border-[1px] border-gray-400 rounded-[10px]"
+                  className="justify-start w-[75px] border-[1px] border-gray-400 rounded-[10px]"
                   key={image}
                   onPress={() =>
                     setActiveImage(`${REACT_APP_API_URL}/${image}`)
@@ -163,6 +137,7 @@ export default function ProductDetail() {
           <Text>{product.productDesc}</Text>
         </View>
         <HorizontalLine />
+
         <View className="self-start mt-10 gap-5">
           <View className="flex flex-row gap-3 items-center">
             <Text className="text-3xl flex overflow-hidden font-JakartaExtraBold">
@@ -254,7 +229,6 @@ export default function ProductDetail() {
               <Pressable onPress={() => setCount((prev) => prev - 1)}>
                 <Text className="font-JakartaExtraBold text-[20px]">-</Text>
               </Pressable>
-
               <Text className="font-JakartaExtraBold text-[20px]">{count}</Text>
               <Pressable onPress={() => setCount((prev) => prev + 1)}>
                 <Text className="font-JakartaExtraBold text-[20px]">+</Text>
@@ -278,10 +252,9 @@ export default function ProductDetail() {
             Free Return Within 30 Days Of Purchase
           </Text>
         </View>
-
         <HorizontalLine />
 
-        <View className="mt-10">
+        <View className="my-10">
           <Text className="text-center text-2xl font-JakartaExtraBold mb-3">
             Featured Products
           </Text>
@@ -290,19 +263,24 @@ export default function ProductDetail() {
             id={product._id}
           />
         </View>
+        {comments?.length !== 0 ? <HorizontalLine /> : ""}
 
-        <View className="mt-10">
-          <Text className="text-2xl font-JakartaBold self-center">
-            Customer Testimonials
-          </Text>
-          <View className="mt-3">
-            {comments?.map((comment: Comment, index) => (
-              <View key={index}>
-                <TestimonialCard comment={comment} />
-              </View>
-            ))}
+        {comments?.length !== 0 ? (
+          <View className="mt-20">
+            <Text className="text-2xl font-JakartaBold self-center">
+              Customer Testimonials
+            </Text>
+            <View className="mt-3">
+              {comments?.map((comment: Comment, index) => (
+                <View key={index}>
+                  <TestimonialCard comment={comment} />
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        ) : (
+          ""
+        )}
       </View>
     </HomeLayout>
   );

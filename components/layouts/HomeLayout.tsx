@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import React from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Footer from "../Footer";
 import Logo from "../Logo";
 import MenuDropdown from "../MenuDropdown";
 import Navigation from "../Navigation";
@@ -14,8 +15,11 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SafeAreaView className="flex-1 w-full h-auto bg-white flex-col">
-      <ScrollView>
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View className="flex flex-col h-auto px-3 ">
           <View className="flex-row justify-between bg-[#2D4D23] h-[30px] w-full items-center px-2">
             <View className="flex flex-row justify-center items-center gap-1 w-1/2 ">
@@ -50,6 +54,7 @@ export default function HomeLayout({
           </View>
         </View>
         <View className="flex-1 mb-[200px] px-7">{children}</View>
+        <Footer />
       </ScrollView>
     </SafeAreaView>
   );
