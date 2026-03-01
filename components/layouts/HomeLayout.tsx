@@ -1,3 +1,4 @@
+import { logOut } from "@/libs/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React from "react";
@@ -42,7 +43,7 @@ export default function HomeLayout({
                   text: "My Page",
                   onSelect: () => router.replace("/(root)/(tabs)/profile"),
                 },
-                { text: "Logout", onSelect: () => console.log("Logout") },
+                { text: "Logout", onSelect: () => logOut() },
               ]}
             />
           </View>

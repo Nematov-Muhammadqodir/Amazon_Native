@@ -1,4 +1,7 @@
+import { userVar } from "@/apollo/store";
+import { CREATE_COMMENT } from "@/apollo/user/mutation";
 import { GET_COMMENTS } from "@/apollo/user/query";
+import CommentInputBox from "@/components/CommentInputBox";
 import CustomButton from "@/components/CustomButton";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import HorizontalLine from "@/components/HorizontalLine";
@@ -7,10 +10,16 @@ import RatingStars from "@/components/RatingStars";
 import TestimonialCard from "@/components/TestimonialCard";
 import { images } from "@/constants";
 import { useProduct } from "@/hooks/useProduct";
+import { CommentGroup } from "@/libs/enums/comment.enum";
+import { Message } from "@/libs/enums/common.enum";
 import { Comment, Comments } from "@/types/comment/comment";
-import { CommentsInquiry } from "@/types/comment/comment.input";
+import { CommentInput, CommentsInquiry } from "@/types/comment/comment.input";
 import { REACT_APP_API_URL } from "@/types/config";
-import { useQuery } from "@apollo/client/react";
+import {
+  sweetMixinErrorAlert,
+  sweetTopSmallSuccessAlert,
+} from "@/types/sweetAlert";
+import { useMutation, useQuery, useReactiveVar } from "@apollo/client/react";
 import Entypo from "@expo/vector-icons/Entypo";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -40,11 +49,19 @@ const DEFAULT_COMMENT_INQUIRY: CommentsInquiry = {
 };
 
 export default function ProductDetail() {
+  //Comments
+  const [insertCommentData, setInsertCommentData] = useState<CommentInput>({
+    commentGroup: CommentGroup.MEMBER,
+    commentContent: "",
+    commentRefId: "",
+  });
+  const user = useReactiveVar(userVar);
   const [count, setCount] = useState(0);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(
     DEFAULT_COMMENT_INQUIRY
   );
+  const [createComment] = useMutation(CREATE_COMMENT);
 
   useEffect(() => {
     if (!id) return;
@@ -52,19 +69,54 @@ export default function ProductDetail() {
       ...prev,
       search: { commentRefId: id },
     }));
+    setInsertCommentData({
+      ...insertCommentData,
+      commentRefId: id as string,
+    });
   }, [id]);
 
   const { getProductLoading, getProductData, getProductError } = useProduct(id);
 
-  const { data: getCommentsData } = useQuery<GetComments>(GET_COMMENTS, {
-    fetchPolicy: "network-only",
-    variables: { input: commentInquiry },
-    notifyOnNetworkStatusChange: true,
-  });
+  const { data: getCommentsData, refetch: getCommentsRefetch } =
+    useQuery<GetComments>(GET_COMMENTS, {
+      fetchPolicy: "network-only",
+      variables: { input: commentInquiry },
+      notifyOnNetworkStatusChange: true,
+    });
+
+  const commentTotal = getCommentsData?.getComments?.metaCounter[0]?.total ?? 0;
+  console.log("commentTotal", commentTotal);
 
   const comments = getCommentsData?.getComments.list;
   const product = getProductData?.getProduct;
   const [activeImage, setActiveImage] = useState<string>("");
+
+  const createCommentHandler = async () => {
+    try {
+      console.log("id", id);
+      if (!id) return;
+      if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+      console.log("user._id", user._id);
+
+      // execute likeTargetProduct Mutation
+      console.log("insertCommentData", insertCommentData);
+      await createComment({
+        variables: {
+          input: insertCommentData,
+        },
+      });
+      setInsertCommentData({ ...insertCommentData, commentContent: "" });
+      await getCommentsRefetch({ input: commentInquiry });
+      if (commentTotal === 0) {
+        window.location.reload();
+      }
+
+      await sweetTopSmallSuccessAlert("success", 800);
+    } catch (err: any) {
+      console.log("Error, createCommentHandler", err);
+      await sweetMixinErrorAlert(err.message).then();
+    }
+  };
 
   if (getProductLoading)
     return (
@@ -270,7 +322,7 @@ export default function ProductDetail() {
             <Text className="text-2xl font-JakartaBold self-center">
               Customer Testimonials
             </Text>
-            <View className="mt-3">
+            <View className="mt-3 gap-3">
               {comments?.map((comment: Comment, index) => (
                 <View key={index}>
                   <TestimonialCard comment={comment} />
@@ -281,6 +333,19 @@ export default function ProductDetail() {
         ) : (
           ""
         )}
+        <HorizontalLine />
+
+        <CommentInputBox
+          value={insertCommentData.commentContent}
+          onChangeText={(text) =>
+            setInsertCommentData((prev) => ({
+              ...prev,
+              commentContent: text,
+            }))
+          }
+          classname={comments?.length ? "mt-16" : "mt-8"}
+          onSubmit={createCommentHandler}
+        />
       </View>
     </HomeLayout>
   );
