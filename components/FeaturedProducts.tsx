@@ -12,7 +12,7 @@ export default function FeaturedProducts({
   collection: ProductCollection;
   id: string;
 }) {
-  const { products, loading } = useNewProducts({
+  const { products, loading, refetch } = useNewProducts({
     search: { productCollection: collection },
   });
 

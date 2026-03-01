@@ -62,3 +62,31 @@ export const UPDATE_COMMENT = gql`
     }
   }
 `;
+
+export const LIKE_TARGET_PRODUCT = gql`
+  mutation LikeTargetProduct($input: String!) {
+    likeTargetProduct(productId: $input) {
+      _id
+      productCollection
+      productStatus
+      productName
+      productPrice
+      productOriginPrice
+      productViews
+      productLikes
+      productComments
+      productRank
+      productVolume
+      productLeftCount
+      productSoldCount
+      productOrigin
+      productDiscountRate
+      productImages
+      productDesc
+      productOwnerId
+      deletedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;

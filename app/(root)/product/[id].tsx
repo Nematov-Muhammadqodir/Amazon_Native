@@ -1,5 +1,5 @@
 import { userVar } from "@/apollo/store";
-import { CREATE_COMMENT } from "@/apollo/user/mutation";
+import { CREATE_COMMENT, LIKE_TARGET_PRODUCT } from "@/apollo/user/mutation";
 import { GET_COMMENTS } from "@/apollo/user/query";
 import CommentInputBox from "@/components/CommentInputBox";
 import CustomButton from "@/components/CustomButton";
@@ -14,6 +14,7 @@ import { CommentGroup } from "@/libs/enums/comment.enum";
 import { Message } from "@/libs/enums/common.enum";
 import { Comment, Comments } from "@/types/comment/comment";
 import { CommentInput, CommentsInquiry } from "@/types/comment/comment.input";
+import { T } from "@/types/common";
 import { REACT_APP_API_URL } from "@/types/config";
 import {
   sweetMixinErrorAlert,
@@ -62,6 +63,7 @@ export default function ProductDetail() {
     DEFAULT_COMMENT_INQUIRY
   );
   const [createComment] = useMutation(CREATE_COMMENT);
+  const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
 
   useEffect(() => {
     if (!id) return;
@@ -75,7 +77,12 @@ export default function ProductDetail() {
     });
   }, [id]);
 
-  const { getProductLoading, getProductData, getProductError } = useProduct(id);
+  const {
+    getProductLoading,
+    getProductData,
+    getProductError,
+    getProductRefetch,
+  } = useProduct(id);
 
   const { data: getCommentsData, refetch: getCommentsRefetch } =
     useQuery<GetComments>(GET_COMMENTS, {
@@ -148,6 +155,29 @@ export default function ProductDetail() {
     Number(product.productPrice) -
     (Number(product.productPrice) * product.productDiscountRate) / 100;
 
+  /** HANDLERS **/
+
+  const likeProductHandler = async (user: T, id: string) => {
+    console.log("likeRefid", user._id);
+    console.log("user", user);
+    console.log("id", id);
+    try {
+      if (!id) return;
+      if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+      await likeTargetProduct({ variables: { input: id } });
+
+      await getProductRefetch({
+        input: id,
+      });
+
+      await sweetTopSmallSuccessAlert("success", 800);
+    } catch (err: any) {
+      console.log("Error, likePropertyHandler", err);
+      sweetMixinErrorAlert(err.message).then();
+    }
+  };
+
   return (
     <HomeLayout>
       <View className="justify-center items-center mt-5 px-7">
@@ -155,11 +185,25 @@ export default function ProductDetail() {
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
         <View>
-          <View className="w-[335px] border-[1px] border-gray-400 bg-[#DAE9CB] rounded-[10px]">
+          <View className="w-[335px] border-[1px] border-gray-400 bg-[#DAE9CB] rounded-[10px] relative">
             <Image
               source={{ uri: activeImage ? activeImage : imgPath }}
               className="self-center w-[155px] h-[195px]"
             />
+            <Pressable
+              className="absolute top-2 right-2"
+              onPress={() => {
+                console.log("user", user);
+                console.log("product?._id", product?._id);
+                likeProductHandler(user, product?._id);
+              }}
+            >
+              {product?.meLiked && product.meLiked[0]?.myFavorite ? (
+                <Entypo name="heart" size={24} color="red" />
+              ) : (
+                <Entypo name="heart-outlined" size={24} color="black" />
+              )}
+            </Pressable>
           </View>
           <View className="flex flex-row flex-nowrap justify-between mt-4">
             {product.productImages.slice(0).map((image) => {
