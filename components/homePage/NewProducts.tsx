@@ -1,15 +1,11 @@
 import { useNewProducts } from "@/hooks/useNewProducts";
-import { Products } from "@/types/product/product";
 import React, { useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { Dimensions, Text, View } from "react-native";
 import Swiper from "react-native-swiper";
 import NewProductCard from "./NewProduct";
 
-interface GetProductsResponse {
-  getProducts: Products;
-}
-
 export default function NewProducts() {
+  const { width } = Dimensions.get("window");
   const { products, loading } = useNewProducts();
 
   const swiper = useRef<Swiper>(null);
@@ -20,12 +16,20 @@ export default function NewProducts() {
       <Text className="text-[20px] font-JakartaExtraBold">New Products</Text>
 
       <Swiper
+        ref={swiper}
+        width={width}
         style={{
           height: 380,
           justifyContent: "center",
           alignItems: "center",
         }}
         loop={false}
+        dot={
+          <View className="w-[12px] h-[4px] mx-1 bg-[#E2E8F0] rounded-full" />
+        }
+        activeDot={
+          <View className="w-[12px] h-[4px] mx-1  bg-[#0286FF] rounded-full" />
+        }
         onIndexChanged={(index) => setActiveIndex(index)}
       >
         {products.map((product) => (
