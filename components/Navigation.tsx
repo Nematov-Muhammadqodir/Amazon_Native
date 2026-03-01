@@ -18,7 +18,10 @@ export default function Navigation() {
       <TouchableOpacity>
         <Text className="font-JakartaExtraBold">FAQ</Text>
       </TouchableOpacity>
-      <TouchableOpacity className="flex justify-center items-center">
+      <TouchableOpacity
+        className="flex justify-center items-center"
+        onPress={() => router.push("/(root)/(tabs)/cart")}
+      >
         <Ionicons name="cart-outline" size={24} color="black" />
       </TouchableOpacity>
     </View>

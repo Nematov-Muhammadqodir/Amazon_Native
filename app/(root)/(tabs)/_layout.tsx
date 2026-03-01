@@ -4,7 +4,7 @@ import { Tabs } from "expo-router";
 import { View } from "react-native";
 
 type TabIconProps = {
-  icon: "home" | "products" | "profile";
+  icon: "home" | "products" | "cart";
   focused: boolean;
 };
 
@@ -14,7 +14,7 @@ function TabIcon({ icon, focused }: TabIconProps) {
       ? "home"
       : icon === "products"
         ? "list-sharp"
-        : icon === "profile"
+        : icon === "cart"
           ? "cart"
           : icons.list;
 
@@ -84,12 +84,12 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="profile"
+        name="cart"
         options={{
           title: "Profile",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="profile" />
+            <TabIcon focused={focused} icon="cart" />
           ),
         }}
       />
