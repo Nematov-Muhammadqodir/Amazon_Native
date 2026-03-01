@@ -1,6 +1,7 @@
 import { icons } from "@/constants";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Image, View } from "react-native";
+import { View } from "react-native";
 
 type TabIconProps = {
   icon: "home" | "products" | "profile";
@@ -8,13 +9,13 @@ type TabIconProps = {
 };
 
 function TabIcon({ icon, focused }: TabIconProps) {
-  const source =
+  const iconName =
     icon === "home"
-      ? icons.home
+      ? "home"
       : icon === "products"
-        ? icons.list
+        ? "list-sharp"
         : icon === "profile"
-          ? icons.profile
+          ? "cart"
           : icons.list;
 
   return (
@@ -28,15 +29,10 @@ function TabIcon({ icon, focused }: TabIconProps) {
           focused ? "bg-general-400" : ""
         }`}
       >
-        <Image
-          source={source}
-          style={{
-            width: 24,
-            height: 24,
-            opacity: focused ? 1 : 0.4,
-          }}
-          resizeMode="contain"
-          className="w-9 h-7"
+        <Ionicons
+          name={iconName as any}
+          size={24}
+          color={focused ? "white" : "rgba(255,255,255,0.4)"}
         />
       </View>
     </View>

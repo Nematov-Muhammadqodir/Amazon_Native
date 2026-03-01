@@ -1,10 +1,11 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Navigation() {
   return (
-    <View className="flex flex-row justify-around">
+    <View className="flex flex-row justify-around items-center">
       <TouchableOpacity onPress={() => router.replace("/(root)/(tabs)/home")}>
         <Text className="font-JakartaExtraBold">Home</Text>
       </TouchableOpacity>
@@ -17,8 +18,8 @@ export default function Navigation() {
       <TouchableOpacity>
         <Text className="font-JakartaExtraBold">FAQ</Text>
       </TouchableOpacity>
-      <TouchableOpacity>
-        <Text className="font-JakartaExtraBold">Track Order</Text>
+      <TouchableOpacity className="flex justify-center items-center">
+        <Ionicons name="cart-outline" size={24} color="black" />
       </TouchableOpacity>
     </View>
   );
