@@ -21,7 +21,7 @@ export default function HomeLayout({
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex flex-col h-auto px-3 ">
+        <View className="flex flex-col h-auto px-3">
           <View className="flex-row justify-between bg-[#2D4D23] h-[30px] w-full items-center px-2">
             <View className="flex flex-row justify-center items-center gap-1 w-1/2 ">
               <Ionicons name="flash" size={20} color="#E9AB18" />
@@ -54,7 +54,9 @@ export default function HomeLayout({
             <Navigation />
           </View>
         </View>
-        <View className="flex-1 mb-[200px] px-7">{children}</View>
+        <View className="flex-1 mb-[100px]">
+          <View className="px-0">{children}</View>
+        </View>
         <Footer />
       </ScrollView>
     </SafeAreaView>

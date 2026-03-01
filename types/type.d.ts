@@ -61,6 +61,7 @@ declare interface ButtonProps extends TouchableOpacityProps {
     | "danger"
     | "outline"
     | "success"
+    | "dark-green"
     | "light-green";
   textVariant?:
     | "primary"
@@ -71,6 +72,7 @@ declare interface ButtonProps extends TouchableOpacityProps {
     | "green";
   IconLeft?: React.ReactNode;
   IconRight?: React.ReactNode;
+  textStyle?: string;
   className?: string;
 }
 

@@ -14,6 +14,8 @@ const getBgVariantStyle = (variant: ButtonProps["bgVariant"]) => {
       return "bg-transparent border-neutral-300 border-[0.5px]";
     case "light-green":
       return "bg-[#F3F9F5]";
+    case "dark-green":
+      return "bg-[#1A8057]";
     default:
       return "bg-[#0286ff]";
   }
@@ -44,6 +46,7 @@ const CustomButton = ({
   IconLeft,
   IconRight,
   className,
+  textStyle,
   ...props
 }: ButtonProps) => (
   <TouchableOpacity
@@ -54,7 +57,9 @@ const CustomButton = ({
     {...props}
   >
     {IconLeft && IconLeft}
-    <Text className={`text-lg font-bold ${getTextVariantStyle(textVariant)}`}>
+    <Text
+      className={`text-lg font-bold ${getTextVariantStyle(textVariant)} ${textStyle}`}
+    >
       {title}
     </Text>
     {IconRight && IconRight}

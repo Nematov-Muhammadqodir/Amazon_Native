@@ -150,7 +150,7 @@ export default function ProductDetail() {
 
   return (
     <HomeLayout>
-      <View className="justify-center items-center mt-5">
+      <View className="justify-center items-center mt-5 px-7">
         <Pressable onPress={() => router.back()} className="mb-5 self-start">
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
@@ -334,19 +334,18 @@ export default function ProductDetail() {
           ""
         )}
         <HorizontalLine />
-
-        <CommentInputBox
-          value={insertCommentData.commentContent}
-          onChangeText={(text) =>
-            setInsertCommentData((prev) => ({
-              ...prev,
-              commentContent: text,
-            }))
-          }
-          classname={comments?.length ? "mt-16" : "mt-8"}
-          onSubmit={createCommentHandler}
-        />
       </View>
+      <CommentInputBox
+        value={insertCommentData.commentContent}
+        onChangeText={(text) =>
+          setInsertCommentData((prev) => ({
+            ...prev,
+            commentContent: text,
+          }))
+        }
+        classname={comments?.length ? "mt-16" : "mt-8"}
+        onSubmit={createCommentHandler}
+      />
     </HomeLayout>
   );
 }
