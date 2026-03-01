@@ -53,6 +53,7 @@ export default function CommentInputBox({
           className="w-[100px]"
           bgVariant="dark-green"
           textStyle=" font-JakartaMedium"
+          onPress={onSubmit}
         />
       </View>
     </View>

@@ -54,7 +54,7 @@ export default function HomeLayout({
             <Navigation />
           </View>
         </View>
-        <View className="flex-1 mb-[100px]">
+        <View className="flex-1">
           <View className="px-0">{children}</View>
         </View>
         <Footer />

@@ -333,7 +333,6 @@ export default function ProductDetail() {
         ) : (
           ""
         )}
-        <HorizontalLine />
       </View>
       <CommentInputBox
         value={insertCommentData.commentContent}
