@@ -43,13 +43,13 @@ export default function cart() {
             borderColor: "#F3F3F5",
           }}
         >
-          <View className="flex flex-row gap-2 items-center">
+          <View className="flex flex-row gap-2 items-center mb-2">
             <Feather name="shopping-bag" size={24} color="black" />
             <Text className="font-JakartaMedium text-[18px]">
-              Shopping Cart (3 items)
+              Shopping Cart ({cartItems.length} items)
             </Text>
           </View>
-          <View className="mt-5 ">
+          <View className="mt-0 ">
             {cartItems.map((item, index) => {
               return <ShoppingCartCard key={item._id} cartItem={item} />;
             })}
