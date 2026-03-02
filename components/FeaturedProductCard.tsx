@@ -11,14 +11,10 @@ import {
 } from "@/types/sweetAlert";
 import { useMutation, useReactiveVar } from "@apollo/client/react";
 import Entypo from "@expo/vector-icons/Entypo";
+import { router } from "expo-router";
 import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import RatingStars from "./RatingStars";
-
-interface FeaturedProductCardInterface {
-  product: Product;
-  refetch: () => void;
-}
 
 export default function FeaturedProductCard({ product }: { product: Product }) {
   const user = useReactiveVar(userVar);
@@ -27,12 +23,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
     ? `${REACT_APP_API_URL}/${product?.productImages[0]}`
     : `${REACT_APP_API_URL}/${product?.productImages[0]}`;
 
-  const {
-    getProductLoading,
-    getProductData,
-    getProductError,
-    getProductRefetch,
-  } = useProduct(product._id);
+  const { getProductRefetch } = useProduct(product._id);
 
   const productDiscountedPrice =
     Number(product.productPrice) -
@@ -59,8 +50,17 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
     }
   };
 
+  // const refreshTheProduct = async () => {
+  //   await getProductRefetch({
+  //     input: product._id,
+  //   });
+  // };
+  // useEffect(() => {
+  //   refreshTheProduct();
+  // }, []);
+
   return (
-    <Pressable>
+    <Pressable onPress={() => router.push(`/product/${product._id}`)}>
       <View className="flex flex-row p-3 gap-5 w-[335px] h-[124px] border-[0.5px] border-gray-400 rounded-lg items-center">
         <View className="w-[98px] h-[110px] rounded-lg bg-[#F5F5F5] flex items-center justify-center relative">
           <Image source={{ uri: imgPath }} className="w-[90px] h-[90px]" />

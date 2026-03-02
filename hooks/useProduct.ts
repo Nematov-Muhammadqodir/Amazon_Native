@@ -16,7 +16,7 @@ export function useProduct(id?: string) {
     fetchPolicy: "network-only",
     variables: { input: id },
     skip: !id,
-    notifyOnNetworkStatusChange: true,
+    // notifyOnNetworkStatusChange: true,
   });
 
   return {

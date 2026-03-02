@@ -77,8 +77,26 @@ export default function ProductDetail() {
 
   // ✅ Disable auto-refetch on mutation
   const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT, {
-    refetchQueries: [], // ✅ Don't refetch anything
-    awaitRefetchQueries: false,
+    update(cache, { data }) {
+      if (!product?._id) return;
+
+      const id = cache.identify({
+        __typename: "Product",
+        _id: product._id,
+      });
+
+      cache.modify({
+        id,
+        fields: {
+          productLikes(existing) {
+            return isLiked ? existing - 1 : existing + 1;
+          },
+          meLiked() {
+            return [{ myFavorite: !isLiked }];
+          },
+        },
+      });
+    },
   });
 
   useEffect(() => {
@@ -269,7 +287,7 @@ export default function ProductDetail() {
     }
   };
 
-  if (getProductLoading)
+  if (getProductLoading && !product)
     return (
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#0286FF" />
