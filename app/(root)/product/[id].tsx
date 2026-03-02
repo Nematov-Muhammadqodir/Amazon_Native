@@ -12,6 +12,8 @@ import { images } from "@/constants";
 import { useProduct } from "@/hooks/useProduct";
 import { CommentGroup } from "@/libs/enums/comment.enum";
 import { Message } from "@/libs/enums/common.enum";
+import { addItem, removeItem } from "@/slice/cartSlice";
+import { RootState } from "@/store";
 import { Comment, Comments } from "@/types/comment/comment";
 import { CommentInput, CommentsInquiry } from "@/types/comment/comment.input";
 import { REACT_APP_API_URL } from "@/types/config";
@@ -36,6 +38,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 interface GetComments {
   getComments: Comments;
@@ -287,6 +290,11 @@ export default function ProductDetail() {
     }
   };
 
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+
+  const currentItem = cartItems.filter((item) => item._id === product?._id);
+
   if (getProductLoading && !product)
     return (
       <View className="flex-1 justify-center items-center">
@@ -471,12 +479,38 @@ export default function ProductDetail() {
           <View className="flex flex-row justify-between w-full gap-2">
             <View className="w-[150px] flex flex-row justify-between border-2 items-center px-5 rounded-full border-[#2D4D23]">
               <Pressable
-                onPress={() => setCount((prev) => Math.max(0, prev - 1))}
+                onPress={() =>
+                  dispatch(
+                    removeItem({
+                      _id: product._id,
+                      quantity: 1,
+                      price: Number(product.productPrice),
+                      name: product.productName,
+                      image: product.productImages[0],
+                      discountRate: product.productDiscountRate,
+                    })
+                  )
+                }
               >
                 <Text className="font-JakartaExtraBold text-[20px]">-</Text>
               </Pressable>
-              <Text className="font-JakartaExtraBold text-[20px]">{count}</Text>
-              <Pressable onPress={() => setCount((prev) => prev + 1)}>
+              <Text className="font-JakartaExtraBold text-[20px]">
+                {currentItem[0] ? currentItem[0].quantity : 0}
+              </Text>
+              <Pressable
+                onPress={() =>
+                  dispatch(
+                    addItem({
+                      _id: product._id,
+                      quantity: 1,
+                      price: Number(product.productPrice),
+                      name: product.productName,
+                      image: product.productImages[0],
+                      discountRate: product.productDiscountRate,
+                    })
+                  )
+                }
+              >
                 <Text className="font-JakartaExtraBold text-[20px]">+</Text>
               </Pressable>
             </View>
@@ -484,6 +518,18 @@ export default function ProductDetail() {
               title="Add To Cart"
               className="w-[190px] bg-white border-[#2D4D23] border-2"
               textVariant="green"
+              onPress={() =>
+                dispatch(
+                  addItem({
+                    _id: product._id,
+                    quantity: 1,
+                    price: Number(product.productPrice),
+                    name: product.productName,
+                    image: product.productImages[0],
+                    discountRate: product.productDiscountRate,
+                  })
+                )
+              }
             />
           </View>
           <CustomButton

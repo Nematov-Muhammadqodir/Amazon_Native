@@ -7,6 +7,11 @@ import { MenuProvider } from "react-native-popup-menu";
 import "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
+// ✅ Add these
+import { persistor, store } from "@/store";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+
 export default function RootLayout() {
   const [loaded] = useFonts({
     "Jakarta-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
@@ -17,25 +22,29 @@ export default function RootLayout() {
     Jakarta: require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
     "Jakarta-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
   });
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
+
   return (
     <ApolloProvider client={client}>
-      <MenuProvider>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(root)" options={{ headerShown: false }} />
-        </Stack>
-        <Toast />
-      </MenuProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <MenuProvider>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(root)" options={{ headerShown: false }} />
+            </Stack>
+            <Toast />
+          </MenuProvider>
+        </PersistGate>
+      </Provider>
     </ApolloProvider>
   );
 }

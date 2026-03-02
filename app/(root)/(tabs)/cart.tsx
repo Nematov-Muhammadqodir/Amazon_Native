@@ -2,16 +2,18 @@ import CustomButton from "@/components/CustomButton";
 import Footer from "@/components/Footer";
 import HorizontalLine from "@/components/HorizontalLine";
 import ShoppingCartCard from "@/components/ShoppingCartCard";
+import { RootState } from "@/store";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 export default function cart() {
-  const cart = [1, 2, 3, 4];
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  console.log("cartItems", cartItems);
   return (
     <SafeAreaView className=" bg-gray-100 " edges={["top", "left", "right"]}>
       <ScrollView>
@@ -48,8 +50,8 @@ export default function cart() {
             </Text>
           </View>
           <View className="mt-5 ">
-            {cart.map((item, index) => {
-              return <ShoppingCartCard key={index} />;
+            {cartItems.map((item, index) => {
+              return <ShoppingCartCard key={item._id} cartItem={item} />;
             })}
           </View>
           <CustomButton

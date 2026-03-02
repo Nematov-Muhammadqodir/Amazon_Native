@@ -3,9 +3,12 @@ import { Product } from "@/types/product/product";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useDispatch } from "react-redux";
+import { addItem } from "../../slice/cartSlice";
 import CustomButton from "../CustomButton";
 
 export default function NewProductCard({ item }: { item: Product }) {
+  const dispatch = useDispatch();
   const imgPath = item?.productImages[0]
     ? `${REACT_APP_API_URL}/${item?.productImages[0]}`
     : `${REACT_APP_API_URL}/${item?.productImages[0]}`;
@@ -39,6 +42,18 @@ export default function NewProductCard({ item }: { item: Product }) {
                 />
               }
               className="gap-2"
+              onPress={() =>
+                dispatch(
+                  addItem({
+                    _id: item._id,
+                    quantity: 1,
+                    price: Number(item.productPrice),
+                    name: item.productName,
+                    image: item.productImages[0],
+                    discountRate: item.productDiscountRate,
+                  })
+                )
+              }
             />
           </View>
         </View>
