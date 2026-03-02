@@ -14,7 +14,6 @@ import { CommentGroup } from "@/libs/enums/comment.enum";
 import { Message } from "@/libs/enums/common.enum";
 import { Comment, Comments } from "@/types/comment/comment";
 import { CommentInput, CommentsInquiry } from "@/types/comment/comment.input";
-import { T } from "@/types/common";
 import { REACT_APP_API_URL } from "@/types/config";
 import {
   sweetMixinErrorAlert,
@@ -22,13 +21,16 @@ import {
 } from "@/types/sweetAlert";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client/react";
 import Entypo from "@expo/vector-icons/Entypo";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Animated,
+  Easing,
   Image,
   Pressable,
   Text,
@@ -41,7 +43,7 @@ interface GetComments {
 
 const DEFAULT_COMMENT_INQUIRY: CommentsInquiry = {
   page: 1,
-  limit: 5,
+  limit: 3,
   sort: "createdAt",
   direction: "DESC",
   search: {
@@ -50,20 +52,34 @@ const DEFAULT_COMMENT_INQUIRY: CommentsInquiry = {
 };
 
 export default function ProductDetail() {
-  //Comments
   const [insertCommentData, setInsertCommentData] = useState<CommentInput>({
     commentGroup: CommentGroup.MEMBER,
     commentContent: "",
     commentRefId: "",
   });
+  const [isExpanded, setIsExpanded] = useState(false);
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const loopAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
   const user = useReactiveVar(userVar);
   const [count, setCount] = useState(0);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(
     DEFAULT_COMMENT_INQUIRY
   );
+
+  // ✅ Local state for optimistic UI
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const hasInitialized = useRef(false); // ✅ Track initialization
+
   const [createComment] = useMutation(CREATE_COMMENT);
-  const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+
+  // ✅ Disable auto-refetch on mutation
+  const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT, {
+    refetchQueries: [], // ✅ Don't refetch anything
+    awaitRefetchQueries: false,
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -77,12 +93,45 @@ export default function ProductDetail() {
     });
   }, [id]);
 
-  const {
-    getProductLoading,
-    getProductData,
-    getProductError,
-    getProductRefetch,
-  } = useProduct(id);
+  const startBounceAnimation = () => {
+    if (loopAnimationRef.current) {
+      loopAnimationRef.current.stop();
+    }
+
+    bounceAnim.setValue(0);
+
+    loopAnimationRef.current = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: -6,
+          duration: 600,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 600,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    loopAnimationRef.current.start();
+  };
+
+  const { getProductLoading, getProductData, getProductError } = useProduct(id);
+
+  // ✅ Start bounce animation on mount
+  useEffect(() => {
+    startBounceAnimation();
+
+    return () => {
+      if (loopAnimationRef.current) {
+        loopAnimationRef.current.stop();
+      }
+    };
+  }, []);
 
   const { data: getCommentsData, refetch: getCommentsRefetch } =
     useQuery<GetComments>(GET_COMMENTS, {
@@ -92,21 +141,35 @@ export default function ProductDetail() {
     });
 
   const commentTotal = getCommentsData?.getComments?.metaCounter[0]?.total ?? 0;
-  console.log("commentTotal", commentTotal);
 
   const comments = getCommentsData?.getComments.list;
   const product = getProductData?.getProduct;
   const [activeImage, setActiveImage] = useState<string>("");
 
+  // ✅ Initialize like state ONLY ONCE when product first loads
+  useEffect(() => {
+    if (product && !hasInitialized.current) {
+      console.log("Initial product load (ONCE):", {
+        meLiked: product?.meLiked,
+        myFavorite: product.meLiked?.[0]?.myFavorite,
+        productLikes: product?.productLikes,
+      });
+      console.log(
+        "Boolean(product?.meLiked",
+        Boolean(product?.meLiked && product.meLiked[0]?.myFavorite)
+      );
+
+      setIsLiked(Boolean(product?.meLiked && product.meLiked[0]?.myFavorite));
+      setLikeCount(product?.productLikes || 0);
+      hasInitialized.current = true; // ✅ Mark as initialized
+    }
+  }, [product]);
+
   const createCommentHandler = async () => {
     try {
-      console.log("id", id);
       if (!id) return;
       if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-      console.log("user._id", user._id);
 
-      // execute likeTargetProduct Mutation
-      console.log("insertCommentData", insertCommentData);
       await createComment({
         variables: {
           input: insertCommentData,
@@ -114,14 +177,95 @@ export default function ProductDetail() {
       });
       setInsertCommentData({ ...insertCommentData, commentContent: "" });
       await getCommentsRefetch({ input: commentInquiry });
-      if (commentTotal === 0) {
-        window.location.reload();
-      }
 
       await sweetTopSmallSuccessAlert("success", 800);
     } catch (err: any) {
       console.log("Error, createCommentHandler", err);
       await sweetMixinErrorAlert(err.message).then();
+    }
+  };
+
+  const toggleCommentsHandler = async () => {
+    const newLimit = isExpanded ? 3 : 20;
+
+    setCommentInquiry((prev) => ({
+      ...prev,
+      limit: newLimit,
+    }));
+
+    setIsExpanded(!isExpanded);
+
+    await getCommentsRefetch({
+      input: {
+        ...commentInquiry,
+        limit: newLimit,
+      },
+    });
+
+    setTimeout(() => {
+      startBounceAnimation();
+    }, 100);
+  };
+
+  // ✅ Instagram-style like animation
+  const animateHeart = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.3,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  // ✅ Optimistic like handler (Instagram-style)
+  const likeProductHandler = async () => {
+    try {
+      if (!product?._id) return;
+      if (!user._id) {
+        await sweetMixinErrorAlert("Please sign in to like products");
+        return;
+      }
+
+      console.log("🔵 Before like:", { isLiked, likeCount });
+
+      // ✅ Optimistic UI update (instant feedback)
+      const newLikedState = !isLiked;
+      setIsLiked(newLikedState);
+      setLikeCount((prev) => (newLikedState ? prev + 1 : prev - 1));
+      animateHeart();
+
+      console.log("🟢 After like (optimistic):", {
+        newLikedState,
+        newCount: likeCount + (newLikedState ? 1 : -1),
+      });
+
+      // ✅ Call API in background (no refetch!)
+      likeTargetProduct({
+        variables: { input: product._id },
+      })
+        .then(() => {
+          console.log("✅ Like mutation successful");
+        })
+        .catch((err) => {
+          console.log("❌ API Error - Rolling back:", err);
+          // ✅ Rollback on error
+          setIsLiked(!newLikedState);
+          setLikeCount((prev) => (newLikedState ? prev - 1 : prev + 1));
+          sweetMixinErrorAlert(err.message);
+        });
+    } catch (err: any) {
+      console.log("Error, likeProductHandler", err);
+      // ✅ Rollback on error
+      const currentLiked = isLiked;
+      setIsLiked(!currentLiked);
+      setLikeCount((prev) => (currentLiked ? prev + 1 : prev - 1));
+      sweetMixinErrorAlert(err.message);
     }
   };
 
@@ -155,29 +299,6 @@ export default function ProductDetail() {
     Number(product.productPrice) -
     (Number(product.productPrice) * product.productDiscountRate) / 100;
 
-  /** HANDLERS **/
-
-  const likeProductHandler = async (user: T, id: string) => {
-    console.log("likeRefid", user._id);
-    console.log("user", user);
-    console.log("id", id);
-    try {
-      if (!id) return;
-      if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-
-      await likeTargetProduct({ variables: { input: id } });
-
-      await getProductRefetch({
-        input: id,
-      });
-
-      await sweetTopSmallSuccessAlert("success", 800);
-    } catch (err: any) {
-      console.log("Error, likePropertyHandler", err);
-      sweetMixinErrorAlert(err.message).then();
-    }
-  };
-
   return (
     <HomeLayout>
       <View className="justify-center items-center mt-5 px-7">
@@ -192,18 +313,26 @@ export default function ProductDetail() {
             />
             <Pressable
               className="absolute top-2 right-2"
-              onPress={() => {
-                console.log("user", user);
-                console.log("product?._id", product?._id);
-                likeProductHandler(user, product?._id);
-              }}
+              onPress={likeProductHandler}
             >
-              {product?.meLiked && product.meLiked[0]?.myFavorite ? (
-                <Entypo name="heart" size={24} color="red" />
-              ) : (
-                <Entypo name="heart-outlined" size={24} color="black" />
-              )}
+              <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                {/* ✅ Use local state, not product.meLiked */}
+                {isLiked ? (
+                  <Entypo name="heart" size={24} color="red" />
+                ) : (
+                  <Entypo name="heart-outlined" size={24} color="black" />
+                )}
+              </Animated.View>
             </Pressable>
+
+            {/* ✅ Show like count from local state */}
+            {likeCount > 0 && (
+              <View className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded-full">
+                <Text className="text-white text-xs font-JakartaBold">
+                  {likeCount} {likeCount === 1 ? "like" : "likes"}
+                </Text>
+              </View>
+            )}
           </View>
           <View className="flex flex-row flex-nowrap justify-between mt-4">
             {product.productImages.slice(0).map((image) => {
@@ -226,6 +355,7 @@ export default function ProductDetail() {
           </View>
         </View>
 
+        {/* Rest of your component... */}
         <View className="self-start mt-10 gap-5">
           <Text className="text-3xl flex overflow-hidden font-JakartaExtraBold">
             {product.productName}
@@ -322,7 +452,9 @@ export default function ProductDetail() {
         <View className="mt-7 flex justify-center items-center w-full">
           <View className="flex flex-row justify-between w-full gap-2">
             <View className="w-[150px] flex flex-row justify-between border-2 items-center px-5 rounded-full border-[#2D4D23]">
-              <Pressable onPress={() => setCount((prev) => prev - 1)}>
+              <Pressable
+                onPress={() => setCount((prev) => Math.max(0, prev - 1))}
+              >
                 <Text className="font-JakartaExtraBold text-[20px]">-</Text>
               </Pressable>
               <Text className="font-JakartaExtraBold text-[20px]">{count}</Text>
@@ -376,6 +508,24 @@ export default function ProductDetail() {
           </View>
         ) : (
           ""
+        )}
+        {commentTotal >= 5 && (
+          <Animated.View
+            style={{
+              transform: [{ translateY: bounceAnim }],
+            }}
+          >
+            <Pressable
+              onPress={toggleCommentsHandler}
+              className="mt-5 self-center"
+            >
+              <FontAwesome
+                name={isExpanded ? "angle-double-up" : "angle-double-down"}
+                size={40}
+                color="black"
+              />
+            </Pressable>
+          </Animated.View>
         )}
       </View>
       <CommentInputBox

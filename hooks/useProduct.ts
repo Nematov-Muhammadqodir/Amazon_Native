@@ -13,7 +13,7 @@ export function useProduct(id?: string) {
     error: getProductError,
     refetch: getProductRefetch,
   } = useQuery<ProductDetailInterface>(GET_PRODUCT, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "network-only",
     variables: { input: id },
     skip: !id,
     notifyOnNetworkStatusChange: true,
