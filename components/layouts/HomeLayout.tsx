@@ -7,8 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Footer from "../Footer";
 import Logo from "../Logo";
 import MenuDropdown from "../MenuDropdown";
-import Navigation from "../Navigation";
 import SearchInput from "../SearchInput";
+import Navigation from "./Navigation";
 
 export default function HomeLayout({
   children,
@@ -41,7 +41,7 @@ export default function HomeLayout({
               options={[
                 {
                   text: "My Page",
-                  onSelect: () => router.replace("/(root)/(tabs)/profile"),
+                  onSelect: () => router.replace("/(root)/profile"),
                 },
                 { text: "Logout", onSelect: () => logOut() },
               ]}

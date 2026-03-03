@@ -26,8 +26,10 @@ import to from "@/assets/icons/to.png";
 import bigBannerText from "@/assets/images/Organic Goodness Every Greatness.png";
 import bannerImage from "@/assets/images/big_banner_image.png";
 import check from "@/assets/images/check.png";
+import defaultUser from "@/assets/images/default-user.jpg";
 import message from "@/assets/images/message.png";
 import noResult from "@/assets/images/no-result.png";
+import backImage from "@/assets/images/profile-back.jpg";
 
 //LOGO
 import group from "@/assets/logo/Group 147152.png";
@@ -67,6 +69,8 @@ export const images = {
   nuts,
   mushroom,
   all_products,
+  backImage,
+  defaultUser,
 };
 
 export const logo = {
