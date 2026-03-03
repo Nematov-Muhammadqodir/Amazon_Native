@@ -29,6 +29,38 @@ export const SIGN_UP = gql`
   }
 `;
 
+export const UPDATE_MEMBER = gql`
+  mutation UpdateMember($input: MemberUpdate!) {
+    updateMember(input: $input) {
+      _id
+      memberType
+      memberStatus
+      memberAuthType
+      memberPhone
+      memberNick
+      memberFullName
+      memberImage
+      memberAddress
+      memberDesc
+      memberProducts
+      memberArticles
+      memberFollowers
+      memberFollowings
+      memberPoints
+      memberLikes
+      memberViews
+      memberComments
+      memberRank
+      memberWarnings
+      memberBlocks
+      deletedAt
+      createdAt
+      updatedAt
+      accessToken
+    }
+  }
+`;
+
 /**************************
  *         COMMENT        *
  *************************/
