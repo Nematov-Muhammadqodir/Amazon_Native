@@ -351,7 +351,6 @@ export default function ProductDetail() {
               </Animated.View>
             </Pressable>
 
-            {/* ✅ Show like count from local state */}
             {likeCount > 0 && (
               <View className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded-full">
                 <Text className="text-white text-xs font-JakartaBold">
