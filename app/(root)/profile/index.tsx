@@ -3,7 +3,7 @@ import { UPDATE_MEMBER } from "@/apollo/user/mutation";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import { images } from "@/constants";
-import { updateUserInfo } from "@/libs/auth";
+import { saveToken, updateUserInfo } from "@/libs/auth";
 import { Messages, REACT_APP_API_URL } from "@/types/config";
 import { MemberUpdate } from "@/types/member/member.update";
 import { sweetErrorHandling, sweetMixinSuccessAlert } from "@/types/sweetAlert";
@@ -62,7 +62,7 @@ export default function MyPage() {
 
       if (jwtToken) {
         console.log("jwtToken", jwtToken);
-        await updateStorage({ jwtToken });
+        await saveToken(jwtToken);
         updateUserInfo(jwtToken);
       }
       await sweetMixinSuccessAlert("Information updated successfully!");
@@ -184,7 +184,4 @@ export default function MyPage() {
       </ScrollView>
     </SafeAreaView>
   );
-}
-function updateStorage(arg0: { jwtToken: any }) {
-  throw new Error("Function not implemented.");
 }
