@@ -1,5 +1,5 @@
-import { images } from "@/constants";
 import { addItem, deleteItem, removeItem } from "@/slice/cartSlice";
+import { REACT_APP_API_URL } from "@/types/config";
 import { CartItem } from "@/types/search";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -9,12 +9,14 @@ import { useDispatch } from "react-redux";
 
 export default function ShoppingCartCard({ cartItem }: { cartItem: CartItem }) {
   const dispatch = useDispatch();
+  const imageUrl = `${REACT_APP_API_URL}/${cartItem.image}`;
+  console.log("imageUrl", imageUrl);
   return (
     <View className="mt-2 border-[0.5px] border-black p-2 rounded-md">
       <View className="flex justify-between flex-row">
         <View className="flex flex-row gap-4">
           <View className="w-[78px] h-[78px] border-[1px] rounded-lg flex justify-center items-center border-black">
-            <Image source={images.fruits} className="w-[48px] h-[48px]" />
+            <Image source={{ uri: imageUrl }} className="w-[48px] h-[48px]" />
           </View>
           <View className="flex justify-between">
             <Text className="text-[16px] font-JakartaBold">
