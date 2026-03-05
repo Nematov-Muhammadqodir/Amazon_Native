@@ -41,7 +41,7 @@ export default function HomeLayout({
               options={[
                 {
                   text: "My Page",
-                  onSelect: () => router.replace("/(root)/profile"),
+                  onSelect: () => router.push("/(root)/profile"),
                 },
                 { text: "Logout", onSelect: () => logOut() },
               ]}
