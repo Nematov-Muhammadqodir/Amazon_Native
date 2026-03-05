@@ -54,7 +54,7 @@ declare interface Ride {
 }
 
 declare interface ButtonProps extends TouchableOpacityProps {
-  title: string;
+  title?: string;
   bgVariant?:
     | "primary"
     | "secondary"
