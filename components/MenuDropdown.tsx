@@ -1,5 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React from "react";
+import { Text, View } from "react-native";
 import {
   Menu,
   MenuOption,
@@ -12,23 +14,35 @@ type MenuItem = {
   onSelect: () => void;
   fontFamily?: string;
   fontSize?: number;
+  selected?: boolean;
 };
 
 type MenuDropdownProps = {
   options: MenuItem[];
   triggerSize?: number;
   triggerColor?: string;
+  triggerIcon?: React.ReactNode;
+  selected?: string;
 };
-
 const MenuDropdown: React.FC<MenuDropdownProps> = ({
   options,
   triggerSize = 24,
   triggerColor = "black",
+  triggerIcon,
+  selected,
 }) => {
+  const [menuOpened, setMenuOpened] = React.useState(false);
   return (
-    <Menu>
-      <MenuTrigger>
-        <AntDesign name="menu" size={triggerSize} color={triggerColor} />
+    <Menu opened={menuOpened} onBackdropPress={() => setMenuOpened(false)}>
+      <MenuTrigger onPress={() => setMenuOpened(true)}>
+        {triggerIcon ? (
+          triggerIcon
+        ) : (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+            <AntDesign name="menu" size={triggerSize} color={triggerColor} />
+            {selected && <Text>{selected}</Text>}
+          </View>
+        )}
       </MenuTrigger>
 
       <MenuOptions
@@ -50,13 +64,37 @@ const MenuDropdown: React.FC<MenuDropdownProps> = ({
             key={index}
             customStyles={{
               optionText: {
-                fontFamily: item.fontFamily || "Jakarta-ExtraBold",
+                fontFamily: item.fontFamily || "Jakarta-Medium",
                 fontSize: item.fontSize || 16,
               },
             }}
-            onSelect={item.onSelect}
-            text={item.text}
-          />
+            onSelect={() => {
+              item.onSelect();
+              setMenuOpened(true);
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingVertical: 6,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: item.fontFamily || "Jakarta-SemiBold",
+                  fontSize: item.fontSize || 16,
+                }}
+              >
+                {item.text}
+              </Text>
+
+              {item.selected && (
+                <FontAwesome name="check" size={18} color="black" />
+              )}
+            </View>
+          </MenuOption>
         ))}
       </MenuOptions>
     </Menu>

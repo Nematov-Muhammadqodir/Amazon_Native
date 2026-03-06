@@ -1,4 +1,5 @@
 export enum ProductCollection {
+  ALL = "ALL",
   FRUITS = "FRUITS",
   MASHROOMS = "MASHROOMS",
   GREENS = "GREENS",
