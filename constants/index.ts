@@ -24,6 +24,8 @@ import star from "@/assets/icons/star.png";
 import target from "@/assets/icons/target.png";
 import to from "@/assets/icons/to.png";
 import bigBannerText from "@/assets/images/Organic Goodness Every Greatness.png";
+import makkaPaya from "@/assets/images/aboutUs/makkapaya.jpg";
+import pomidor from "@/assets/images/aboutUs/pomidor.jpg";
 import bannerImage from "@/assets/images/big_banner_image.png";
 import check from "@/assets/images/check.png";
 import defaultUser from "@/assets/images/default-user.jpg";
@@ -71,6 +73,8 @@ export const images = {
   all_products,
   backImage,
   defaultUser,
+  makkaPaya,
+  pomidor,
 };
 
 export const logo = {

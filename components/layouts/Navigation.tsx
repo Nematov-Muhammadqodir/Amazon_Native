@@ -9,7 +9,7 @@ export default function Navigation() {
       <TouchableOpacity onPress={() => router.replace("/(root)/(tabs)/home")}>
         <Text className="font-JakartaExtraBold">Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/(root)/aboutUs")}>
         <Text className="font-JakartaExtraBold">About Us</Text>
       </TouchableOpacity>
       <TouchableOpacity>
