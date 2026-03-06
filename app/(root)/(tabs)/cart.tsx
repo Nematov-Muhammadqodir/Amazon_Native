@@ -1,20 +1,79 @@
+import { userVar } from "@/apollo/store";
 import CustomButton from "@/components/CustomButton";
 import Footer from "@/components/Footer";
 import HorizontalLine from "@/components/HorizontalLine";
 import ShoppingCartCard from "@/components/ShoppingCartCard";
 import { images } from "@/constants";
+import { deleteAll } from "@/slice/cartSlice";
 import { RootState } from "@/store";
+import { sweetMixinSuccessAlert } from "@/types/sweetAlert";
+import { useReactiveVar } from "@apollo/client/react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
+import { useStripe } from "@stripe/stripe-react-native";
 import { router } from "expo-router";
 import React from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function cart() {
+  const user = useReactiveVar(userVar);
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  console.log("cartItems", cartItems);
+  const dispatch = useDispatch();
+  const totalAmount = cartItems.reduce((total, item) => {
+    const discountedPrice = item.price - (item.price * item.discountRate) / 100;
+    return total + discountedPrice * item.quantity;
+  }, 0);
+
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  const fetchPaymentSheetParams = async () => {
+    const response = await fetch("http://192.168.0.27:3003/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+            mutation {
+              createPaymentIntent(amount: ${totalAmount})
+            }
+          `,
+      }),
+    });
+
+    const { data } = await response.json();
+
+    return data.createPaymentIntent;
+  };
+
+  const initializePaymentSheet = async () => {
+    const clientSecret = await fetchPaymentSheetParams();
+
+    const { error } = await initPaymentSheet({
+      merchantDisplayName: "ShijangMe",
+      paymentIntentClientSecret: clientSecret,
+    });
+
+    if (!error) {
+      openPaymentSheet();
+    }
+  };
+
+  const openPaymentSheet = async () => {
+    const { error } = await presentPaymentSheet();
+
+    if (error) {
+      alert(`Payment failed: ${error.message}`);
+    } else {
+      sweetMixinSuccessAlert(
+        `${user.memberNick}, thank you for your purchase!`
+      );
+      dispatch(deleteAll());
+      router.back();
+    }
+  };
   return (
     <SafeAreaView className=" bg-gray-100 " edges={["top", "left", "right"]}>
       <ScrollView>
@@ -63,6 +122,7 @@ export default function cart() {
                 IconLeft={
                   <Feather name="credit-card" size={24} color="white" />
                 }
+                onPress={initializePaymentSheet}
               />
             </View>
             <Footer />

@@ -1,5 +1,6 @@
 import { client } from "@/apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
+import { StripeProvider } from "@stripe/stripe-react-native";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -32,19 +33,24 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <ApolloProvider client={client}>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <MenuProvider>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(root)" options={{ headerShown: false }} />
-            </Stack>
-            <Toast />
-          </MenuProvider>
-        </PersistGate>
-      </Provider>
-    </ApolloProvider>
+    <StripeProvider
+      publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}
+      merchantIdentifier="merchant.com.yourapp"
+    >
+      <ApolloProvider client={client}>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <MenuProvider>
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(root)" options={{ headerShown: false }} />
+              </Stack>
+              <Toast />
+            </MenuProvider>
+          </PersistGate>
+        </Provider>
+      </ApolloProvider>
+    </StripeProvider>
   );
 }
