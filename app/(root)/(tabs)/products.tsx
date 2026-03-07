@@ -8,6 +8,7 @@ import { ProductCollection, ProductFrom } from "@/libs/enums/product.enum";
 import { Products } from "@/types/product/product";
 import { ProductsInquiry } from "@/types/product/product.input";
 import { useQuery } from "@apollo/client/react";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
 
@@ -16,6 +17,8 @@ interface GetProductsResponse {
 }
 
 export default function ProductsPage() {
+  const { collection } = useLocalSearchParams();
+  console.log("Collection", collection);
   const [searchFilter, setSearchFilter] = useState<ProductsInquiry>({
     page: 1,
     limit: 20,
@@ -130,8 +133,30 @@ export default function ProductsPage() {
   };
 
   useEffect(() => {
-    getProductsRefetch({ input: searchFilter });
-  }, []);
+    if (!collection) {
+      setSearchFilter((prev) => ({
+        ...prev,
+        search: {
+          productPrice: {
+            start: 0,
+            end: 20000000,
+          },
+        },
+      }));
+    } else {
+      setSearchFilter((prev) => ({
+        ...prev,
+        search: {
+          ...prev.search,
+          productCollection: collection as ProductCollection,
+        },
+      }));
+    }
+  }, [collection]);
+
+  // useEffect(() => {
+  //   getProductsRefetch({ input: searchFilter });
+  // }, []);
 
   const products = getProductsData?.getProducts.list;
   return (

@@ -1,5 +1,6 @@
 import { images } from "@/constants";
 import { ProductCollection } from "@/libs/enums/product.enum";
+import { router } from "expo-router";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
@@ -11,7 +12,7 @@ interface CategoryInterface {
 export default function Category({
   handleSearchByCollection,
 }: {
-  handleSearchByCollection: (collection: ProductCollection) => void;
+  handleSearchByCollection?: (collection: ProductCollection) => void;
 }) {
   const categories: CategoryInterface[] = [
     { category: ProductCollection.ALL, image: images.all_products },
@@ -31,7 +32,16 @@ export default function Category({
           <TouchableOpacity
             className="p-3 bg-[#E9EEEA] rounded-xl"
             key={index}
-            onPress={() => handleSearchByCollection(category.category)}
+            onPress={() => {
+              if (category.category === ProductCollection.ALL) {
+                router.push("/products");
+              } else {
+                router.push({
+                  pathname: "/products",
+                  params: { collection: category.category },
+                });
+              }
+            }}
           >
             <Image source={category.image} className="w-[45px] h-[45px]" />
           </TouchableOpacity>
