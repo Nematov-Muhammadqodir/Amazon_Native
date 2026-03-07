@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     width: "100%",
     height: 200,
-    marginTop: 20,
     borderRadius: 0,
     overflow: "hidden",
   },
