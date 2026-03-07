@@ -62,7 +62,9 @@ declare interface ButtonProps extends TouchableOpacityProps {
     | "outline"
     | "success"
     | "dark-green"
-    | "light-green";
+    | "light-green"
+    | "dark-yellow";
+
   textVariant?:
     | "primary"
     | "default"

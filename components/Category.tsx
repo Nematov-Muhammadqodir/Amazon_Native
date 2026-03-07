@@ -25,7 +25,7 @@ export default function Category({
     { category: ProductCollection.GREENS, image: images.greens },
   ];
   return (
-    <View className="flex justify-center items-center mt-10">
+    <View className="flex justify-center items-center mt-10 px-5">
       <Text className="text-[20px] font-JakartaExtraBold">Category</Text>
       <View className="flex flex-row flex-wrap gap-3 justify-between mt-3 w-[100%]">
         {categories.map((category: CategoryInterface, index) => (

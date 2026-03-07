@@ -30,3 +30,7 @@ export function formatDate(dateString: Date): string {
     day: "numeric",
   });
 }
+
+export const extractTextFromHTML = (html: string) => {
+  return html.replace(/<[^>]*>/g, "").trim();
+};

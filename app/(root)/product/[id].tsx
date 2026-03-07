@@ -517,6 +517,7 @@ export default function ProductDetail() {
               title="Add To Cart"
               className="w-[190px] bg-white border-[#2D4D23] border-2"
               textVariant="green"
+              textStyle="font-bold"
               onPress={() =>
                 dispatch(
                   addItem({

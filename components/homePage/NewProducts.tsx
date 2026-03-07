@@ -12,7 +12,7 @@ export default function NewProducts() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <View className="items-center mt-10">
+    <View className="items-center mt-10 ">
       <Text className="text-[20px] font-JakartaExtraBold">New Products</Text>
 
       <Swiper
