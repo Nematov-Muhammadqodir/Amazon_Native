@@ -8,7 +8,7 @@ import {
 import React from "react";
 import { Image, Text, useWindowDimensions, View } from "react-native";
 
-interface BoardArticlesCardInterface {
+export interface BoardArticlesCardInterface {
   boardArticle: BoardArticle;
 }
 
@@ -33,7 +33,7 @@ export default function BoardArticlesCard({
       <View className="flex-1 py-2 gap-1 border-l-0 px-2 rounded-r-xl">
         <View className="w-[100px] h-[23px] bg-[#1A8057] rounded-full flex justify-center items-center">
           <Text className="text-[10px] text-white">
-            {formatDate(boardArticle.createdAt)}
+            {formatDate(boardArticle?.createdAt)}
           </Text>
         </View>
         <View className={`h-[60px] flex flex-nowrap pt-2`}>

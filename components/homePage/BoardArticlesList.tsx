@@ -11,7 +11,7 @@ import { Text, useWindowDimensions, View } from "react-native";
 import CustomButton from "../CustomButton";
 import BoardArticlesCard from "./BoardArticlesCard";
 
-interface GetBlogsResponse {
+export interface GetBlogsResponse {
   getBoardArticles: BoardArticles;
 }
 export default function BoardArticlesList() {
