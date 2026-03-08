@@ -32,7 +32,7 @@ export default function Navigation({
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/(root)/cs")}>
         <Text style={{ color: textColor }} className="font-JakartaExtraBold">
           FAQ
         </Text>

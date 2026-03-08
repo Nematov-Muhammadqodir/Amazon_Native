@@ -15,4 +15,5 @@ export enum NoticeFor {
   FOR_BUYERS = "FOR_BUYERS",
   COMMUNITY = "COMMUNITY",
   OTHER = "OTHER",
+  ALL = "ALL",
 }

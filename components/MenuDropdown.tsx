@@ -70,7 +70,7 @@ const MenuDropdown: React.FC<MenuDropdownProps> = ({
             }}
             onSelect={() => {
               item.onSelect();
-              setMenuOpened(true);
+              setMenuOpened(false);
             }}
           >
             <View

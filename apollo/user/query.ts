@@ -203,3 +203,19 @@ export const GET_BOARD_ARTICLES = gql`
     }
   }
 `;
+
+export const GET_NOTICES = gql`
+  query GetNotices($input: NoticeInquery!) {
+    getNotices(input: $input) {
+      _id
+      noticeCategory
+      noticeStatus
+      noticeTitle
+      noticeContent
+      memberId
+      createdAt
+      updatedAt
+      noticeFor
+    }
+  }
+`;

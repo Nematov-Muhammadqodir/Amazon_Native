@@ -7,7 +7,7 @@ import {
 export interface NoticeInput {
   noticeCategory: NoticeCategory;
   noticeStatus: NoticeStatus;
-  noticeFor: NoticeFor;
+  noticeFor?: NoticeFor;
   noticeTitle: string;
   noticeContent: string;
   memberId?: string;
