@@ -46,6 +46,7 @@ export default function HomeLayout({
                   onSelect: () => router.push("/(root)/profile"),
                 },
                 { text: "Logout", onSelect: () => logOut() },
+                { text: "Users", onSelect: () => router.push("/(root)/users") },
               ]}
             />
           </View>
