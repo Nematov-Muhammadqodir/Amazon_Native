@@ -43,5 +43,5 @@ export interface Product {
 export interface Products {
   list: Product[];
 
-  metaCounter?: TotalCounter[];
+  metaCounter: TotalCounter[];
 }

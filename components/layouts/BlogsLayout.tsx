@@ -22,8 +22,10 @@ export default function BlogsLayout({
         showsVerticalScrollIndicator={false}
       >
         <View className="flex flex-col h-auto px-3 bg-[#1A8057] pt-[40px] pb-5">
-          <View className="flex flex-row w-full justify-around mt-8 items-center px-2">
-            <Logo />
+          <View className="flex flex-row w-full justify-between mt-8 items-center px-2">
+            <Pressable onPress={() => router.push("/(root)/(tabs)/home")}>
+              <Logo />
+            </Pressable>
             <View className="flex flex-row items-center gap-3">
               <Pressable onPress={() => router.push("/(root)/profile")}>
                 <FontAwesome name="user-circle-o" size={20} color="white" />

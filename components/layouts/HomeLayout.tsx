@@ -2,7 +2,7 @@ import { logOut } from "@/libs/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Footer from "../Footer";
 import Logo from "../Logo";
@@ -33,8 +33,10 @@ export default function HomeLayout({
               Free Shipping On All Orders
             </Text>
           </View>
-          <View className="flex flex-row w-full justify-around mt-8 items-center">
-            <Logo />
+          <View className="flex flex-row w-full justify-between mt-8 items-center px-4">
+            <Pressable onPress={() => router.push("/(root)/(tabs)/home")}>
+              <Logo />
+            </Pressable>
             <MenuDropdown
               triggerSize={28}
               triggerColor="black"

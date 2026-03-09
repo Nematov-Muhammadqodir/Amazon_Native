@@ -2,12 +2,14 @@ import { GET_PRODUCTS } from "@/apollo/user/query";
 import AllProducts from "@/components/AllProducts";
 import Category from "@/components/Category";
 import HomeLayout from "@/components/layouts/HomeLayout";
+import MenuDropdown from "@/components/MenuDropdown";
 import { images } from "@/constants";
 import { Direction } from "@/libs/enums/common.enum";
 import { ProductCollection, ProductFrom } from "@/libs/enums/product.enum";
 import { Products } from "@/types/product/product";
 import { ProductsInquiry } from "@/types/product/product.input";
 import { useQuery } from "@apollo/client/react";
+import { AntDesign, Entypo } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
@@ -18,10 +20,11 @@ interface GetProductsResponse {
 
 export default function ProductsPage() {
   const { collection } = useLocalSearchParams();
+  const locations = Object.values(ProductFrom);
   console.log("Collection", collection);
   const [searchFilter, setSearchFilter] = useState<ProductsInquiry>({
     page: 1,
-    limit: 20,
+    limit: 10,
     sort: "createdAt",
     direction: Direction.DESC,
     search: {
@@ -105,6 +108,7 @@ export default function ProductsPage() {
         break;
     }
   };
+
   const handleFilteringByLocation = (location: ProductFrom) => {
     const currentLocations = searchFilter.search.productOrigin || [];
 
@@ -154,15 +158,68 @@ export default function ProductsPage() {
     }
   }, [collection]);
 
-  // useEffect(() => {
-  //   getProductsRefetch({ input: searchFilter });
-  // }, []);
+  const handlePageChange = (page: number) => {
+    setSearchFilter({
+      ...searchFilter,
+      page: page,
+    });
+  };
 
   const products = getProductsData?.getProducts.list;
+  const total = getProductsData?.getProducts?.metaCounter[0]?.total || 0;
+  const totalPages = Math.ceil(total / searchFilter.limit);
   return (
     <HomeLayout>
       <View className="px-5 mb-[45px]">
         <Category handleSearchByCollection={handleSearchByCollection} />
+        <View className="flex flex-row justify-between mt-10">
+          <MenuDropdown
+            selected="Location"
+            options={locations.map((location) => ({
+              text: location,
+              onSelect: () => handleFilteringByLocation(location),
+              fontFamily: searchFilter.search.productOrigin?.includes(location)
+                ? "Jakarta-ExtraBold"
+                : "Jakarta-Medium",
+              selected: searchFilter.search.productOrigin?.includes(location)
+                ? true
+                : false,
+            }))}
+            triggerIcon={<Entypo name="location" size={24} color="black" />}
+          />
+          <Text className="text-[20px] font-JakartaExtraBold flex self-center">
+            All Products
+          </Text>
+          <MenuDropdown
+            options={[
+              {
+                text: "Lowest Price",
+                onSelect: () => handleFiltering("lowestPrice"),
+              },
+              {
+                text: "Highest Price",
+                onSelect: () => handleFiltering("highestPrice"),
+              },
+              {
+                text: "Newest Products",
+                onSelect: () => handleFiltering("new"),
+              },
+              {
+                text: "Oldest Products",
+                onSelect: () => handleFiltering("old"),
+              },
+              {
+                text: "Highest Discount",
+                onSelect: () => handleFiltering("highDiscount"),
+              },
+              {
+                text: "Lowest Discount",
+                onSelect: () => handleFiltering("lowDiscount"),
+              },
+            ]}
+            triggerIcon={<AntDesign name="filter" size={24} color="black" />}
+          />
+        </View>
         {products?.length ? (
           <AllProducts
             products={products}
@@ -176,6 +233,25 @@ export default function ProductsPage() {
             <Text className="font-JakartaBold text-[30px]">
               Products Not Found
             </Text>
+          </View>
+        )}
+        {totalPages > 1 && (
+          <View className="flex flex-row flex-wrap justify-center mt-10 gap-2">
+            {Array.from({ length: totalPages }, (_, index) => {
+              const page = index + 1;
+
+              return (
+                <Text
+                  key={page}
+                  onPress={() => handlePageChange(page)}
+                  className={`px-4 py-2 border rounded-md ${
+                    searchFilter.page === page ? "bg-black text-white" : ""
+                  }`}
+                >
+                  {page}
+                </Text>
+              );
+            })}
           </View>
         )}
       </View>
