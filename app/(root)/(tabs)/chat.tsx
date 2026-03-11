@@ -1,6 +1,7 @@
 import UserCard from "@/components/UserCard";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -35,7 +36,7 @@ export default function Chat() {
 
   const { getUsersLoading, getUsersData } = useUsers();
   const users = getUsersData?.getAllUsers;
-  console.log("users", users);
+
   const { width, height } = useWindowDimensions();
 
   return (
@@ -74,24 +75,41 @@ export default function Chat() {
           </Pressable>
         </View>
       </View>
-      <ScrollView className="mt-5 px-5 gap-2 mb-[60px]">
-        {users?.map((user: Member) => (
-          <Pressable
-            key={user._id}
-            onPress={() =>
-              router.push(
-                `/chat/${{
-                  pathname: "/chat/[userId]",
-                  params: { userId: user._id },
-                }}`
-              )
-            }
-          >
-            <UserCard user={user} />
-            <UserCard user={user} />
-          </Pressable>
-        ))}
-      </ScrollView>
+      {active === "chats" ? (
+        <ScrollView className="mt-5 px-5 gap-2 mb-[60px]">
+          {users?.map((user: Member) => (
+            <Pressable
+              key={user._id}
+              onPress={() =>
+                router.push(
+                  `/chat/${{
+                    pathname: "/chat/[userId]",
+                    params: { userId: user._id },
+                  }}`
+                )
+              }
+            >
+              <UserCard user={user} />
+            </Pressable>
+          ))}
+        </ScrollView>
+      ) : (
+        <ScrollView
+          className="mt-5 px-5 mb-[60px]"
+          contentContainerStyle={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View className="flex flex-row justify-center items-center gap-2">
+            <Text className="text-[20px] font-JakartaBold">
+              No Group Chats Yet
+            </Text>
+            <Ionicons name="people-circle-outline" size={34} color="black" />
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

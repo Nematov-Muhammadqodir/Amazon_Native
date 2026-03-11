@@ -13,7 +13,7 @@ export function useUsers() {
     error: getUsersError,
     refetch: getUsersRefetch,
   } = useQuery<UsersInterface>(GET_ALL_USERS, {
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
   });
 
   return {
