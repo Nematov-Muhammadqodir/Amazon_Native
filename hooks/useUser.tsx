@@ -13,7 +13,7 @@ export function useUser(memberId?: string) {
     error: getUserError,
     refetch: getUserRefetch,
   } = useQuery<UserDetailInterface>(GET_MEMBER, {
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
     variables: { input: memberId },
     skip: !memberId,
   });

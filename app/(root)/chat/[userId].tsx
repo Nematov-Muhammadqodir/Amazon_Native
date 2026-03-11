@@ -1,6 +1,8 @@
 import { images } from "@/constants";
+import { useUser } from "@/hooks/useUser";
+import { REACT_APP_API_URL } from "@/types/config";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -17,6 +19,11 @@ import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Chat() {
+  const { userId } = useLocalSearchParams();
+  console.log("userId", userId);
+  const { getUserLoading, getUserData } = useUser(userId as string);
+  const user = getUserData?.getMember;
+  console.log("user", user);
   const [messages, setMessages] = useState(
     Array.from({ length: 100 }, (_, i) => ({
       id: String(i + 1),
@@ -25,6 +32,7 @@ export default function Chat() {
     }))
   );
   const [message, setMessage] = useState("");
+  const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
   return (
     <SafeAreaView className="flex-1 bg-[#BCD38B]">
       <KeyboardAvoidingView
@@ -48,17 +56,24 @@ export default function Chat() {
               </Pressable>
               <View className="items-center rounded-full px-5 py-1 bg-[#D7E6B5] shadow-md w-auto h-[50px] justify-center">
                 <Text className="font-bold text-[14px] font-JakartaExtraBold">
-                  UserName
+                  {user?.memberNick}
                 </Text>
                 <Text className="font-JakartaMedium color-gray-700 text-[12px]">
                   last seen recently
                 </Text>
               </View>
               <View className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md">
-                <Image
-                  source={images.defaultUser}
-                  className="w-[48px] h-[48px] rounded-full"
-                />
+                {user?.memberImage ? (
+                  <Image
+                    source={{ uri: imgPath }}
+                    className="w-[48px] h-[48px] rounded-full"
+                  />
+                ) : (
+                  <Image
+                    source={images.defaultUser}
+                    className="w-[48px] h-[48px] rounded-full"
+                  />
+                )}
               </View>
             </View>
 

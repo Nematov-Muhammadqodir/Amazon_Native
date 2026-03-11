@@ -81,12 +81,10 @@ export default function Chat() {
             <Pressable
               key={user._id}
               onPress={() =>
-                router.push(
-                  `/chat/${{
-                    pathname: "/chat/[userId]",
-                    params: { userId: user._id },
-                  }}`
-                )
+                router.push({
+                  pathname: "/chat/[userId]",
+                  params: { userId: user._id },
+                })
               }
             >
               <UserCard user={user} />
