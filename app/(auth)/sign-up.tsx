@@ -10,7 +10,7 @@ export default function SignUp() {
   async function check() {
     const token = await getToken();
     if (token) {
-      router.replace("/(root)/(tabs)/home");
+      router.replace("/(root)/(tabs)/chat");
     }
   }
   useEffect(() => {

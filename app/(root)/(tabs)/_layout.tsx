@@ -4,7 +4,7 @@ import { Tabs } from "expo-router";
 import { View } from "react-native";
 
 type TabIconProps = {
-  icon: "home" | "products" | "cart";
+  icon: "home" | "products" | "cart" | "chatbubble-ellipses";
   focused: boolean;
 };
 
@@ -14,9 +14,11 @@ function TabIcon({ icon, focused }: TabIconProps) {
       ? "home"
       : icon === "products"
         ? "list-sharp"
-        : icon === "cart"
-          ? "cart"
-          : icons.list;
+        : icon === "chatbubble-ellipses"
+          ? "chatbubble-ellipses"
+          : icon === "cart"
+            ? "cart"
+            : icons.list;
 
   return (
     <View
@@ -42,7 +44,7 @@ function TabIcon({ icon, focused }: TabIconProps) {
 export default function TabLayout() {
   return (
     <Tabs
-      initialRouteName="home"
+      // initialRouteName="home"
       screenOptions={{
         tabBarActiveTintColor: "white",
         tabBarInactiveTintColor: "white",
@@ -90,6 +92,16 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon="cart" />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "Chat",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="chatbubble-ellipses" />
           ),
         }}
       />

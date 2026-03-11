@@ -259,7 +259,7 @@ export default function UserPage() {
             </View>
             <View className="flex flex-row items-center">
               <Text className="text-[16px] text-[#155FEF] font-JakartaSemiBold">
-                Online
+                Active
               </Text>
               <View className="w-[2px] h-4 bg-[#155FEF] mx-2" />
               <Text className="text-[16px] text-[#155FEF] font-JakartaSemiBold">
