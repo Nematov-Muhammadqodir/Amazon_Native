@@ -295,3 +295,18 @@ export const GET_MEMBER = gql`
     }
   }
 `;
+
+export const GET_CHAT_ROOM = gql`
+  query GetChatRoom($roomId: String!) {
+    getChatRoom(roomId: $roomId) {
+      _id
+      participants {
+        _id
+        memberNick
+        memberImage
+      }
+      lastMessage
+      createdAt
+    }
+  }
+`;

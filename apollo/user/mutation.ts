@@ -122,3 +122,23 @@ export const LIKE_TARGET_PRODUCT = gql`
     }
   }
 `;
+
+export const GET_OR_CREATE_ROOM = gql`
+  mutation GetOrCreateRoom($input: CreateChatRoomInput!) {
+    getOrCreateRoom(input: $input) {
+      _id
+      participants {
+        _id
+        memberType
+        memberStatus
+        memberPhone
+        memberNick
+        memberFullName
+        memberImage
+        memberAddress
+      }
+      lastMessage
+      createdAt
+    }
+  }
+`;

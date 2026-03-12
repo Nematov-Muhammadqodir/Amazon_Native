@@ -1,22 +1,27 @@
+import { GET_OR_CREATE_ROOM } from "@/apollo/user/mutation";
 import UserCard from "@/components/UserCard";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
+import { useMutation } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+interface GetOrCreateRoomResponse {
+  getOrCreateRoom: {
+    _id: string;
+    participants: Member[];
+    lastMessage?: string;
+    createdAt: string;
+  };
+}
 
 export default function Chat() {
   const [active, setActive] = useState<"chats" | "groups">("chats");
@@ -37,7 +42,32 @@ export default function Chat() {
   const { getUsersLoading, getUsersData } = useUsers();
   const users = getUsersData?.getAllUsers;
 
-  const { width, height } = useWindowDimensions();
+  const [getOrCreateRoom] =
+    useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);
+
+  const openChat = async (targetUserId: string) => {
+    console.log("targetUserId", targetUserId);
+
+    try {
+      const res = await getOrCreateRoom({
+        variables: {
+          input: { targetUserId },
+        },
+      });
+
+      console.log("roomId", res);
+      const roomId = res.data?.getOrCreateRoom._id;
+
+      if (!roomId) return;
+
+      router.push({
+        pathname: "/chat/[roomId]",
+        params: { roomId },
+      });
+    } catch (err) {
+      console.log("CHAT ERROR:", err);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#BCD38B]">
@@ -78,15 +108,7 @@ export default function Chat() {
       {active === "chats" ? (
         <ScrollView className="mt-5 px-5 gap-2 mb-[60px]">
           {users?.map((user: Member) => (
-            <Pressable
-              key={user._id}
-              onPress={() =>
-                router.push({
-                  pathname: "/chat/[userId]",
-                  params: { userId: user._id },
-                })
-              }
-            >
+            <Pressable key={user._id} onPress={() => openChat(user._id)}>
               <UserCard user={user} />
             </Pressable>
           ))}

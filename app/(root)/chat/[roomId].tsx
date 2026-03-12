@@ -1,6 +1,9 @@
+import { GET_CHAT_ROOM } from "@/apollo/user/query";
 import { images } from "@/constants";
 import { useUser } from "@/hooks/useUser";
+import { ChatRoomType } from "@/types/chat/chat";
 import { REACT_APP_API_URL } from "@/types/config";
+import { useQuery } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -18,12 +21,31 @@ import {
 import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+interface ChatRoomInterface {
+  getChatRoom: ChatRoomType;
+}
+
 export default function Chat() {
-  const { userId } = useLocalSearchParams();
-  console.log("userId", userId);
+  const { roomId } = useLocalSearchParams();
+  console.log("roomId", roomId);
+  const {
+    loading: getChatRoomLoading,
+    data: getChatRoomData,
+    error: getChatRoomError,
+    refetch: getChatRoomRefetch,
+  } = useQuery<ChatRoomInterface>(GET_CHAT_ROOM, {
+    fetchPolicy: "network-only",
+    variables: { roomId: roomId },
+    skip: !roomId,
+  });
+  console.log(
+    "getChatRoomData",
+    getChatRoomData?.getChatRoom.participants[0]._id
+  );
+  const userId = getChatRoomData?.getChatRoom.participants[0]._id;
+
   const { getUserLoading, getUserData } = useUser(userId as string);
   const user = getUserData?.getMember;
-  console.log("user", user);
   const [messages, setMessages] = useState(
     Array.from({ length: 100 }, (_, i) => ({
       id: String(i + 1),
