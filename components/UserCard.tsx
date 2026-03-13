@@ -4,7 +4,13 @@ import { Member } from "@/types/member/member";
 import React from "react";
 import { Image, Text, View } from "react-native";
 
-export default function UserCard({ user }: { user: Member }) {
+export default function UserCard({
+  user,
+  isOnline,
+}: {
+  user: Member;
+  isOnline?: boolean;
+}) {
   const imgPath = `${REACT_APP_API_URL}/${user.memberImage}`;
   return (
     <View className="flex flex-row w-full items-center gap-3 border-b-[1px] pb-2 border-gray-300">
@@ -23,7 +29,9 @@ export default function UserCard({ user }: { user: Member }) {
       </View>
       <View>
         <Text className="text-[16px] font-JakartaBold">{user.memberNick}</Text>
-        <Text className="text-[12px] color-gray-600">Active now</Text>
+        <Text className="text-[12px] color-gray-600">
+          {isOnline ? "Online" : "Offline"}
+        </Text>
       </View>
     </View>
   );

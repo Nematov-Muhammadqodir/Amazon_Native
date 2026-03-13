@@ -1,7 +1,8 @@
 import { userVar } from "@/apollo/store";
 import { GET_CHAT_ROOM, GET_MESSAGES } from "@/apollo/user/query";
 import { images } from "@/constants";
-import { socket } from "@/libs/socket";
+import { getSocket } from "@/libs/socket";
+
 import { ChatRoomType, GetMessages, MessageType } from "@/types/chat/chat";
 import { REACT_APP_API_URL } from "@/types/config";
 import { useQuery, useReactiveVar } from "@apollo/client/react";
@@ -28,7 +29,9 @@ interface ChatRoomInterface {
 
 export default function Chat() {
   const loggedInUser = useReactiveVar(userVar);
-  const { roomId } = useLocalSearchParams();
+  const { roomId, isOnline } = useLocalSearchParams();
+  const isUserOnline = isOnline === "true";
+  const socket = getSocket();
   const roomIdString = Array.isArray(roomId) ? roomId[0] : roomId;
   console.log("roomId", roomId);
   const {
@@ -60,7 +63,7 @@ export default function Chat() {
   const handleSendMessage = () => {
     if (!message.trim()) return;
 
-    socket.emit("sendMessage", {
+    socket?.emit("sendMessage", {
       chatRoomId: roomIdString,
       senderId: loggedInUser._id,
       text: message,
@@ -85,11 +88,11 @@ export default function Chat() {
   useEffect(() => {
     if (!roomId) return;
     console.log("Joining room:", roomId);
-    socket.emit("joinRoom", roomIdString);
+    socket?.emit("joinRoom", roomIdString);
   }, [roomId]);
 
   useEffect(() => {
-    socket.on("newMessage", (incomingMessage: MessageType) => {
+    socket?.on("newMessage", (incomingMessage: MessageType) => {
       setMessages((prev) => {
         if (prev.some((m) => m._id === incomingMessage._id)) {
           return prev; // already added
@@ -98,7 +101,7 @@ export default function Chat() {
       });
     });
     return () => {
-      socket.off("newMessage");
+      socket?.off("newMessage");
     };
   }, []);
   const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
@@ -128,7 +131,7 @@ export default function Chat() {
                   {user?.memberNick}
                 </Text>
                 <Text className="font-JakartaMedium color-gray-700 text-[12px]">
-                  last seen recently
+                  {isUserOnline ? "Online" : "last seen recently"}
                 </Text>
               </View>
               <View className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md">

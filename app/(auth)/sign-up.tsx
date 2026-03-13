@@ -1,18 +1,27 @@
+import { userVar } from "@/apollo/store";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import { getToken, signUp } from "@/libs/auth";
+import { connectSocket } from "@/libs/socket";
+import { useReactiveVar } from "@apollo/client/react";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUp() {
+  const user = useReactiveVar(userVar);
   async function check() {
     const token = await getToken();
+
     if (token) {
-      router.replace("/(root)/(tabs)/chat");
+      if (user._id !== "") {
+        connectSocket(user._id);
+        router.replace("/(root)/(tabs)/chat");
+      }
     }
   }
+
   useEffect(() => {
     check();
   }, []);
@@ -30,13 +39,18 @@ export default function SignUp() {
   }, []);
 
   const doSignUp = useCallback(async () => {
-    console.log("signup", input);
     try {
-      await signUp(input.nick, input.password, input.phone, input.type);
-      console.log("signup success");
+      const user = await signUp(
+        input.nick,
+        input.password,
+        input.phone,
+        input.type
+      );
 
-      await router.replace(`/(root)/(tabs)/home`);
-    } catch (err: any) {
+      connectSocket(user._id);
+
+      router.replace("/(root)/(tabs)/home");
+    } catch (err) {
       console.log("Error", err);
     }
   }, [input]);

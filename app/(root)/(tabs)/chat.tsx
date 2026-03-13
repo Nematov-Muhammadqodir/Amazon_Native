@@ -1,12 +1,13 @@
 import { userVar } from "@/apollo/store";
 import { GET_OR_CREATE_ROOM } from "@/apollo/user/mutation";
 import UserCard from "@/components/UserCard";
+import { useSocket } from "@/hooks/useSocket";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
 import { useMutation, useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -27,6 +28,8 @@ interface GetOrCreateRoomResponse {
 export default function Chat() {
   const loggedInUser = useReactiveVar(userVar);
   const [active, setActive] = useState<"chats" | "groups">("chats");
+  const { socket, isConnected } = useSocket(loggedInUser._id);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   const translateX = useSharedValue(0);
 
@@ -66,12 +69,57 @@ export default function Chat() {
 
       router.push({
         pathname: "/chat/[roomId]",
-        params: { roomId },
+        params: {
+          roomId,
+          isOnline: onlineUsers.includes(targetUserId) ? "true" : "false",
+        },
       });
     } catch (err) {
       console.log("CHAT ERROR:", err);
     }
   };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleOnlineUsers = (users: string[]) => {
+      console.log("onlineUsers received:", users);
+      setOnlineUsers(users);
+    };
+
+    socket.on("onlineUsers", handleOnlineUsers);
+
+    // ✅ Request current online users after subscribing
+    // so we don't miss the event that fired on connection
+    socket.emit("getOnlineUsers");
+
+    return () => {
+      socket.off("onlineUsers", handleOnlineUsers);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    console.log("socket connected?", socket.connected);
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleOnlineUsers = (users: string[]) => {
+      console.log("onlineUsers", users);
+      setOnlineUsers(users);
+    };
+
+    socket?.on("onlineUsers", handleOnlineUsers);
+
+    return () => {
+      socket?.off("onlineUsers", handleOnlineUsers);
+    };
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-[#BCD38B]">
@@ -113,7 +161,7 @@ export default function Chat() {
         <ScrollView className="mt-5 px-5 gap-2 mb-[60px]">
           {users?.map((user: Member) => (
             <Pressable key={user._id} onPress={() => openChat(user._id)}>
-              <UserCard user={user} />
+              <UserCard user={user} isOnline={onlineUsers.includes(user._id)} />
             </Pressable>
           ))}
         </ScrollView>

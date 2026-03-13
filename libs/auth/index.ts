@@ -63,34 +63,29 @@ export const signUp = async (
   password: string,
   phone: string,
   type: string
-): Promise<void> => {
-  try {
-    const result = await client.mutate<SignUpResponse>({
-      mutation: SIGN_UP,
-      variables: {
-        input: {
-          memberNick: nick,
-          memberPassword: password,
-          memberPhone: phone,
-          memberType: type,
-        },
+) => {
+  const result = await client.mutate<SignUpResponse>({
+    mutation: SIGN_UP,
+    variables: {
+      input: {
+        memberNick: nick,
+        memberPassword: password,
+        memberPhone: phone,
+        memberType: type,
       },
-    });
+    },
+  });
 
-    const jwtToken = result.data?.signup.accessToken;
+  const jwtToken = result.data?.signup.accessToken;
 
-    if (!jwtToken) throw new Error("No token received");
+  if (!jwtToken) throw new Error("No token received");
 
-    await saveToken(jwtToken);
-    updateUserInfo(jwtToken);
+  await saveToken(jwtToken);
 
-    router.replace("/(root)/(tabs)/home");
-  } catch (err) {
-    console.log("SignUp error:", err);
-    throw err;
-  }
+  const user = updateUserInfo(jwtToken); // return decoded user
+
+  return user;
 };
-
 /* ================================
    LOGIN
 ================================ */
@@ -131,7 +126,7 @@ export const signUp = async (
 export const updateUserInfo = (jwtToken: string) => {
   const claims = jwtDecode<CustomJwtPayload>(jwtToken);
 
-  userVar({
+  const user = {
     _id: claims._id ?? "",
     memberType: claims.memberType ?? "",
     memberStatus: claims.memberStatus ?? "",
@@ -150,7 +145,11 @@ export const updateUserInfo = (jwtToken: string) => {
     memberViews: claims.memberViews ?? 0,
     memberWarnings: claims.memberWarnings ?? 0,
     memberBlocks: claims.memberBlocks ?? 0,
-  });
+  };
+
+  userVar(user);
+
+  return user; // ✅ IMPORTANT
 };
 
 /* ================================

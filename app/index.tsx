@@ -1,22 +1,28 @@
+import { userVar } from "@/apollo/store";
 import "@/global.css";
-import { getToken, updateUserInfo } from "@/libs/auth";
-import { Redirect, router } from "expo-router";
-import { useEffect } from "react";
-import "react-native-reanimated";
+import { hydrateAuth } from "@/libs/auth";
+import { Redirect } from "expo-router";
+import { useEffect, useState } from "react";
 
 export default function InitialEnter() {
+  const [checked, setChecked] = useState(false);
+
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = await getToken();
+    async function init() {
+      await hydrateAuth();
+      setChecked(true);
+    }
 
-      if (token) {
-        updateUserInfo(token);
-      } else {
-        router.replace("/sign-up");
-      }
-    };
-
-    checkAuth();
+    init();
   }, []);
+
+  if (!checked) return null;
+
+  const user = userVar();
+
+  if (user._id) {
+    return <Redirect href="/(root)/(tabs)/home" />;
+  }
+
   return <Redirect href="/sign-up" />;
 }
