@@ -310,3 +310,14 @@ export const GET_CHAT_ROOM = gql`
     }
   }
 `;
+export const GET_MESSAGES = gql`
+  query GetMessages($roomId: String!) {
+    getMessages(roomId: $roomId) {
+      _id
+      chatRoomId
+      senderId
+      text
+      createdAt
+    }
+  }
+`;

@@ -1,8 +1,9 @@
+import { userVar } from "@/apollo/store";
 import { GET_OR_CREATE_ROOM } from "@/apollo/user/mutation";
 import UserCard from "@/components/UserCard";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -24,6 +25,7 @@ interface GetOrCreateRoomResponse {
 }
 
 export default function Chat() {
+  const loggedInUser = useReactiveVar(userVar);
   const [active, setActive] = useState<"chats" | "groups">("chats");
 
   const translateX = useSharedValue(0);
@@ -40,7 +42,9 @@ export default function Chat() {
   };
 
   const { getUsersLoading, getUsersData } = useUsers();
-  const users = getUsersData?.getAllUsers;
+  const users = getUsersData?.getAllUsers.filter(
+    (user: Member) => user._id !== loggedInUser._id
+  );
 
   const [getOrCreateRoom] =
     useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);

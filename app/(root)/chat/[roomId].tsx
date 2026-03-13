@@ -1,12 +1,13 @@
-import { GET_CHAT_ROOM } from "@/apollo/user/query";
+import { userVar } from "@/apollo/store";
+import { GET_CHAT_ROOM, GET_MESSAGES } from "@/apollo/user/query";
 import { images } from "@/constants";
-import { useUser } from "@/hooks/useUser";
-import { ChatRoomType } from "@/types/chat/chat";
+import { socket } from "@/libs/socket";
+import { ChatRoomType, GetMessages, MessageType } from "@/types/chat/chat";
 import { REACT_APP_API_URL } from "@/types/config";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -26,7 +27,9 @@ interface ChatRoomInterface {
 }
 
 export default function Chat() {
+  const loggedInUser = useReactiveVar(userVar);
   const { roomId } = useLocalSearchParams();
+  const roomIdString = Array.isArray(roomId) ? roomId[0] : roomId;
   console.log("roomId", roomId);
   const {
     loading: getChatRoomLoading,
@@ -34,26 +37,70 @@ export default function Chat() {
     error: getChatRoomError,
     refetch: getChatRoomRefetch,
   } = useQuery<ChatRoomInterface>(GET_CHAT_ROOM, {
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
     variables: { roomId: roomId },
     skip: !roomId,
   });
-  console.log(
-    "getChatRoomData",
-    getChatRoomData?.getChatRoom.participants[0]._id
+  const otherUser = getChatRoomData?.getChatRoom.participants.find(
+    (participant) => participant._id !== loggedInUser?._id
   );
-  const userId = getChatRoomData?.getChatRoom.participants[0]._id;
 
-  const { getUserLoading, getUserData } = useUser(userId as string);
-  const user = getUserData?.getMember;
-  const [messages, setMessages] = useState(
-    Array.from({ length: 100 }, (_, i) => ({
-      id: String(i + 1),
-      text: `This is message number ${i + 1} in the chat conversation.`,
-      sender: i % 2 === 0 ? "me" : "other",
-    }))
+  const { data, refetch: getMessagesRefetch } = useQuery<GetMessages>(
+    GET_MESSAGES,
+    {
+      variables: { roomId: roomIdString },
+      skip: !roomIdString,
+    }
   );
+
+  const user = otherUser;
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [message, setMessage] = useState("");
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+
+    socket.emit("sendMessage", {
+      chatRoomId: roomIdString,
+      senderId: loggedInUser._id,
+      text: message,
+    });
+
+    setMessage("");
+  };
+
+  useEffect(() => {
+    if (data?.getMessages) {
+      setMessages([...data.getMessages].reverse());
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!roomIdString) return;
+
+    // fetch messages from server again
+    getMessagesRefetch?.();
+  }, [roomIdString]);
+
+  useEffect(() => {
+    if (!roomId) return;
+    console.log("Joining room:", roomId);
+    socket.emit("joinRoom", roomIdString);
+  }, [roomId]);
+
+  useEffect(() => {
+    socket.on("newMessage", (incomingMessage: MessageType) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m._id === incomingMessage._id)) {
+          return prev; // already added
+        }
+        return [incomingMessage, ...prev];
+      });
+    });
+    return () => {
+      socket.off("newMessage");
+    };
+  }, []);
   const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
   return (
     <SafeAreaView className="flex-1 bg-[#BCD38B]">
@@ -103,11 +150,11 @@ export default function Chat() {
               <FlatList
                 data={messages}
                 inverted
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                   <View
                     className={`mb-2 max-w-[70%] px-4 py-2 rounded-2xl ${
-                      item.sender === "me"
+                      item.senderId === loggedInUser._id
                         ? "self-end bg-[#D7E6B5] rounded-br-none"
                         : "self-start bg-white rounded-bl-none"
                     }`}
@@ -137,7 +184,7 @@ export default function Chat() {
               </View>
               <View className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md">
                 {message.trim().length > 0 ? (
-                  <Pressable>
+                  <Pressable onPress={handleSendMessage}>
                     <Ionicons name="send" size={26} color="black" />
                   </Pressable>
                 ) : (

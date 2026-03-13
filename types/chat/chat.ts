@@ -6,3 +6,15 @@ export interface ChatRoomType {
   lastMessage?: string;
   createdAt: Date;
 }
+
+export interface MessageType {
+  _id: string;
+  chatRoomId: string;
+  senderId: string;
+  text: string;
+  createdAt: Date;
+}
+
+export interface GetMessages {
+  getMessages: MessageType[];
+}
