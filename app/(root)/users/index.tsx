@@ -1,11 +1,14 @@
+import { userVar } from "@/apollo/store";
 import HorizontalLine from "@/components/HorizontalLine";
 import UserCard from "@/components/UserCard";
+import { useSocket } from "@/hooks/useSocket";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
+import { useReactiveVar } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Pressable,
   Text,
@@ -16,10 +19,26 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Users() {
+  const loggedInUser = useReactiveVar(userVar);
   const { getUsersLoading, getUsersData } = useUsers();
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const { socket, isConnected } = useSocket(loggedInUser._id);
   const users = getUsersData?.getAllUsers;
   console.log("users", users);
   const { width, height } = useWindowDimensions();
+
+  useEffect(() => {
+    const handleOnlineUsers = (users: string[]) => {
+      console.log("onlineUsers", users);
+      setOnlineUsers(users);
+    };
+
+    socket?.on("onlineUsers", handleOnlineUsers);
+
+    return () => {
+      socket?.off("onlineUsers", handleOnlineUsers);
+    };
+  }, []);
   return (
     <SafeAreaView>
       <View className="mt-5 justify-center">
@@ -57,7 +76,7 @@ export default function Users() {
               key={user._id}
               onPress={() => router.push(`/users/${user._id}`)}
             >
-              <UserCard user={user} />
+              <UserCard user={user} isOnline={onlineUsers.includes(user._id)} />
             </Pressable>
           ))}
         </View>
