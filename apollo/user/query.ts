@@ -317,6 +317,7 @@ export const GET_MESSAGES = gql`
       chatRoomId
       senderId
       text
+      imageUrl
       createdAt
     }
   }

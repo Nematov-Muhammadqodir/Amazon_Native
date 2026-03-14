@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { createClient } from "graphql-ws";
 
-const GRAPHQL_URL = "http://192.168.0.27:3003/graphql";
+const GRAPHQL_URL = process.env.EXPO_PUBLIC_API_GRAPHQL_URL;
 const WS_URL = "ws://192.168.0.27:3004/graphql";
 
 /* ---------------- HTTP LINK ---------------- */

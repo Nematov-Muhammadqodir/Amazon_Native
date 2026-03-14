@@ -11,7 +11,8 @@ export interface MessageType {
   _id: string;
   chatRoomId: string;
   senderId: string;
-  text: string;
+  text?: string;
+  imageUrl?: string;
   createdAt: Date;
 }
 

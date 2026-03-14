@@ -74,6 +74,7 @@ export default function MyPage() {
       sweetErrorHandling(err).then();
     }
   }, [updateData]);
+
   const uploadImage = async (image: any) => {
     console.log("Uploading image:", image);
     try {

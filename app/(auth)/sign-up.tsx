@@ -1,8 +1,8 @@
 import { userVar } from "@/apollo/store";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
+import { useSocket } from "@/hooks/useSocket";
 import { getToken, signUp } from "@/libs/auth";
-import { connectSocket } from "@/libs/socket";
 import { useReactiveVar } from "@apollo/client/react";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -16,7 +16,7 @@ export default function SignUp() {
 
     if (token) {
       if (user._id !== "") {
-        connectSocket(user._id);
+        useSocket(user._id);
         router.replace("/(root)/(tabs)/chat");
       }
     }
@@ -47,11 +47,14 @@ export default function SignUp() {
         input.type
       );
 
-      connectSocket(user._id);
+      console.log("user", user);
+
+      useSocket(user._id);
 
       router.replace("/(root)/(tabs)/home");
-    } catch (err) {
-      console.log("Error", err);
+    } catch (err: any) {
+      console.log("SIGNUP ERROR:", err?.message);
+      console.log("FULL ERROR:", JSON.stringify(err, null, 2));
     }
   }, [input]);
   return (
@@ -65,6 +68,7 @@ export default function SignUp() {
         <InputField
           label="Password"
           value={input.password}
+          secureTextEntry
           onChangeText={(value) => handleInput("password", value)}
         />
         <InputField

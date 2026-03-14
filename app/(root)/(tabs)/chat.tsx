@@ -7,7 +7,7 @@ import { Member } from "@/types/member/member";
 import { useMutation, useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -45,9 +45,13 @@ export default function Chat() {
   };
 
   const { getUsersLoading, getUsersData } = useUsers();
-  const users = getUsersData?.getAllUsers.filter(
-    (user: Member) => user._id !== loggedInUser._id
-  );
+  const users = useMemo(() => {
+    if (!getUsersData?.getAllUsers) return [];
+
+    return getUsersData.getAllUsers.filter(
+      (user: Member) => user._id !== loggedInUser._id
+    );
+  }, [getUsersData, loggedInUser._id]);
 
   const [getOrCreateRoom] =
     useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);
