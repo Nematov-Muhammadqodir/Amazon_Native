@@ -142,3 +142,27 @@ export const GET_OR_CREATE_ROOM = gql`
     }
   }
 `;
+
+export const SUBSCRIBE = gql`
+  mutation Subscribe($input: String!) {
+    subscribe(input: $input) {
+      _id
+      followingId
+      followerId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UNSUBSCRIBE = gql`
+  mutation Unsubscribe($input: String!) {
+    unsubscribe(input: $input) {
+      _id
+      followingId
+      followerId
+      createdAt
+      updatedAt
+    }
+  }
+`;

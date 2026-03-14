@@ -2,9 +2,9 @@ import {
   MemberAuthType,
   MemberStatus,
   MemberType,
-} from "../../enums/member.enum";
-import { MeLiked, TotalCounter } from "../product/product";
+} from "@/libs/enums/member.enum";
 import { MeFollowed } from "../follow/follow";
+import { MeLiked, TotalCounter } from "../product/product";
 
 export interface Member {
   _id: string;

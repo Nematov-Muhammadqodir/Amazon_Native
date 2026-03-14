@@ -1,6 +1,7 @@
 import { userVar } from "@/apollo/store";
 import HorizontalLine from "@/components/HorizontalLine";
 import UserCard from "@/components/UserCard";
+import { useFollow } from "@/hooks/useFollow";
 import { useSocket } from "@/hooks/useSocket";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
@@ -20,6 +21,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Users() {
   const loggedInUser = useReactiveVar(userVar);
+
+  const [initialInput, setInitialInput] = useState({
+    page: 1,
+    limit: 5,
+    search: {
+      followingId: "",
+    },
+  });
+  const { subscribeHandler, unsubscribeHandler } = useFollow();
   const { getUsersLoading, getUsersData } = useUsers();
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const { socket, isConnected } = useSocket(loggedInUser._id);
@@ -79,7 +89,13 @@ export default function Users() {
               key={user._id}
               onPress={() => router.push(`/users/${user._id}`)}
             >
-              <UserCard user={user} isOnline={onlineUsers.includes(user._id)} />
+              <UserCard
+                user={user}
+                isOnline={onlineUsers.includes(user._id)}
+                subscribeHandler={subscribeHandler}
+                unsubscribeHandler={unsubscribeHandler}
+                initialInput={initialInput}
+              />
             </Pressable>
           ))}
         </View>

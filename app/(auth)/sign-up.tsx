@@ -11,14 +11,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUp() {
   const user = useReactiveVar(userVar);
+  const { socket } = useSocket(user?._id);
+
   async function check() {
     const token = await getToken();
 
-    if (token) {
-      if (user._id !== "") {
-        useSocket(user._id);
-        router.replace("/(root)/(tabs)/chat");
-      }
+    if (token && user._id !== "") {
+      router.replace("/(root)/(tabs)/chat");
     }
   }
 

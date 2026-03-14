@@ -2,6 +2,7 @@ import { GET_OR_CREATE_ROOM, UPDATE_MEMBER } from "@/apollo/user/mutation";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import { images } from "@/constants";
+import { useFollow } from "@/hooks/useFollow";
 import { useUser } from "@/hooks/useUser";
 import { getToken, saveToken, updateUserInfo } from "@/libs/auth";
 import { Messages, REACT_APP_API_URL } from "@/types/config";
@@ -26,8 +27,11 @@ interface UpdateMemberResponse {
 
 export default function UserPage() {
   const { userId } = useLocalSearchParams();
+  const { subscribeHandler, unsubscribeHandler } = useFollow();
   console.log("userId", userId);
-  const { getUserLoading, getUserData } = useUser(userId as string);
+  const { getUserLoading, getUserData, getUserRefetch } = useUser(
+    userId as string
+  );
   const user = getUserData?.getMember;
 
   const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
@@ -232,6 +236,7 @@ export default function UserPage() {
       console.log("CHAT ERROR:", err);
     }
   };
+  const isFollowing = user?.meFollowed?.[0]?.myFollowing ?? false;
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1">
@@ -312,11 +317,28 @@ export default function UserPage() {
             />
 
             <CustomButton
-              title="Follow"
-              IconLeft={<Feather name="user-plus" size={20} color="#155FEF" />}
+              title={isFollowing ? "Unfollow" : "Follow"}
+              IconLeft={
+                <Feather
+                  name={isFollowing ? "user-minus" : "user-plus"}
+                  size={20}
+                  color="#155FEF"
+                />
+              }
               className="rounded-xl px-5 gap-2 bg-[#F0F8FF]"
               textStyle="font-JakartaSemiBold font-normal"
               textVariant="primary"
+              onPress={async () => {
+                if (!user?._id) return;
+
+                if (isFollowing) {
+                  await unsubscribeHandler(user._id);
+                } else {
+                  await subscribeHandler(user._id);
+                }
+
+                await getUserRefetch();
+              }}
             />
           </View>
           <View className="p-4 mt-5">

@@ -1,7 +1,9 @@
 import { userVar } from "@/apollo/store";
 import { GET_OR_CREATE_ROOM } from "@/apollo/user/mutation";
 import UserCard from "@/components/UserCard";
+import { useFollow } from "@/hooks/useFollow";
 import { useSocket } from "@/hooks/useSocket";
+import { useUser } from "@/hooks/useUser";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
 import { useMutation, useReactiveVar } from "@apollo/client/react";
@@ -27,6 +29,15 @@ export interface GetOrCreateRoomResponse {
 
 export default function Chat() {
   const loggedInUser = useReactiveVar(userVar);
+  const [initialInput, setInitialInput] = useState({
+    page: 1,
+    limit: 5,
+    search: {
+      followingId: "",
+    },
+  });
+  const { getUserRefetch } = useUser(loggedInUser._id);
+  const { subscribeHandler, unsubscribeHandler } = useFollow();
   const [active, setActive] = useState<"chats" | "groups">("chats");
   const { socket, isConnected } = useSocket(loggedInUser._id);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
@@ -55,6 +66,7 @@ export default function Chat() {
 
   const [getOrCreateRoom] =
     useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);
+  console.log("userssss", users[0]);
 
   const openChat = async (targetUserId: string) => {
     console.log("targetUserId", targetUserId);
@@ -165,7 +177,13 @@ export default function Chat() {
         <ScrollView className="mt-5 px-5 gap-2 mb-[60px]">
           {users?.map((user: Member) => (
             <Pressable key={user._id} onPress={() => openChat(user._id)}>
-              <UserCard user={user} isOnline={onlineUsers.includes(user._id)} />
+              <UserCard
+                user={user}
+                isOnline={onlineUsers.includes(user._id)}
+                initialInput={initialInput}
+                subscribeHandler={subscribeHandler}
+                unsubscribeHandler={unsubscribeHandler}
+              />
             </Pressable>
           ))}
         </ScrollView>

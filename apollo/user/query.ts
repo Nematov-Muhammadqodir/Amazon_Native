@@ -249,6 +249,16 @@ export const GET_ALL_USERS = gql`
       createdAt
       updatedAt
       accessToken
+      meLiked {
+        memberId
+        likeRefId
+        myFavorite
+      }
+      meFollowed {
+        followingId
+        followerId
+        myFollowing
+      }
     }
   }
 `;
@@ -319,6 +329,70 @@ export const GET_MESSAGES = gql`
       text
       imageUrl
       createdAt
+    }
+  }
+`;
+
+export const GET_MEMBER_FOLLOWERS = gql`
+  query GetMemberFollowers($input: FollowInquiry!) {
+    getMemberFollowers(input: $input) {
+      metaCounter {
+        total
+      }
+      list {
+        _id
+        followingId
+        followerId
+        createdAt
+        updatedAt
+        meLiked {
+          memberId
+          likeRefId
+          myFavorite
+        }
+        meFollowed {
+          followingId
+          followerId
+          myFollowing
+        }
+        followerData {
+          _id
+          memberType
+          memberStatus
+          memberAuthType
+          memberPhone
+          memberNick
+          memberFullName
+          memberImage
+          memberAddress
+          memberDesc
+          memberProducts
+          memberArticles
+          memberFollowers
+          memberFollowings
+          memberPoints
+          memberLikes
+          memberViews
+          memberComments
+          memberRank
+          memberWarnings
+          memberBlocks
+          deletedAt
+          createdAt
+          updatedAt
+          accessToken
+          meLiked {
+            memberId
+            likeRefId
+            myFavorite
+          }
+          meFollowed {
+            followingId
+            followerId
+            myFollowing
+          }
+        }
+      }
     }
   }
 `;
