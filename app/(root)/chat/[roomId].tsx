@@ -18,6 +18,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   Text,
@@ -40,6 +41,7 @@ interface MessageInput {
 export default function Chat() {
   const loggedInUser = useReactiveVar(userVar);
   const { roomId, isOnline } = useLocalSearchParams();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const isUserOnline = isOnline === "true";
   const socket = getSocket();
   const roomIdString = Array.isArray(roomId) ? roomId[0] : roomId;
@@ -336,17 +338,23 @@ export default function Chat() {
                       >
                         {/* IMAGE MESSAGE */}
                         {item.imageUrl ? (
-                          <Image
-                            source={{
-                              uri: getImageUrl(item.imageUrl),
-                            }}
-                            style={{
-                              width: 220,
-                              height: 220,
-                              borderRadius: 14,
-                            }}
-                            resizeMode="cover"
-                          />
+                          <Pressable
+                            onPress={() =>
+                              setSelectedImage(getImageUrl(item.imageUrl))
+                            }
+                          >
+                            <Image
+                              source={{
+                                uri: getImageUrl(item.imageUrl),
+                              }}
+                              style={{
+                                width: 220,
+                                height: 220,
+                                borderRadius: 14,
+                              }}
+                              resizeMode="cover"
+                            />
+                          </Pressable>
                         ) : null}
 
                         {/* TEXT MESSAGE */}
@@ -399,6 +407,34 @@ export default function Chat() {
                 )}
               </View>
             </View>
+            <Modal visible={!!selectedImage} transparent animationType="fade">
+              <View className="flex-1 bg-black justify-center items-center">
+                {/* Close Button */}
+                <Pressable
+                  onPress={() => setSelectedImage(null)}
+                  style={{
+                    position: "absolute",
+                    top: 60,
+                    right: 20,
+                    zIndex: 10,
+                  }}
+                >
+                  <Ionicons name="close" size={32} color="white" />
+                </Pressable>
+
+                {/* Fullscreen Image */}
+                {selectedImage && (
+                  <Image
+                    source={{ uri: selectedImage }}
+                    style={{
+                      width: "100%",
+                      height: "80%",
+                    }}
+                    resizeMode="contain"
+                  />
+                )}
+              </View>
+            </Modal>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
