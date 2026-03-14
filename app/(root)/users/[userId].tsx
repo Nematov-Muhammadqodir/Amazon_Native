@@ -1,4 +1,4 @@
-import { UPDATE_MEMBER } from "@/apollo/user/mutation";
+import { GET_OR_CREATE_ROOM, UPDATE_MEMBER } from "@/apollo/user/mutation";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import { images } from "@/constants";
@@ -16,6 +16,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { GetOrCreateRoomResponse } from "../(tabs)/chat";
 
 interface UpdateMemberResponse {
   updateMember: {
@@ -203,6 +204,34 @@ export default function UserPage() {
       console.log("Image picker error:", err);
     }
   };
+  const [getOrCreateRoom] =
+    useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);
+
+  const openChat = async (targetUserId: string) => {
+    console.log("targetUserId", targetUserId);
+
+    try {
+      const res = await getOrCreateRoom({
+        variables: {
+          input: { targetUserId },
+        },
+      });
+
+      console.log("roomId", res);
+      const roomId = res.data?.getOrCreateRoom._id;
+
+      if (!roomId) return;
+
+      router.push({
+        pathname: "/chat/[roomId]",
+        params: {
+          roomId,
+        },
+      });
+    } catch (err) {
+      console.log("CHAT ERROR:", err);
+    }
+  };
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1">
@@ -278,10 +307,7 @@ export default function UserPage() {
               onPress={() => {
                 if (!user?._id) return;
 
-                router.push({
-                  pathname: "/chat/[userId]",
-                  params: { userId: user._id },
-                });
+                openChat(user._id);
               }}
             />
 

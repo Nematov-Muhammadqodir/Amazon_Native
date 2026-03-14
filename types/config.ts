@@ -34,3 +34,11 @@ export function formatDate(dateString: Date): string {
 export const extractTextFromHTML = (html: string) => {
   return html.replace(/<[^>]*>/g, "").trim();
 };
+
+export const getImageUrl = (path?: string) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) return path;
+
+  return `${REACT_APP_API_URL}/${path}`;
+};

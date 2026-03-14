@@ -5,7 +5,7 @@ import { getToken } from "@/libs/auth";
 import { getSocket } from "@/libs/socket";
 
 import { ChatRoomType, GetMessages, MessageType } from "@/types/chat/chat";
-import { REACT_APP_API_URL } from "@/types/config";
+import { getImageUrl, REACT_APP_API_URL } from "@/types/config";
 import { useQuery, useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
@@ -257,13 +257,6 @@ export default function Chat() {
     }
   };
 
-  const getImageUrl = (path?: string) => {
-    if (!path) return "";
-
-    if (path.startsWith("http")) return path;
-
-    return `${REACT_APP_API_URL}/${path}`;
-  };
   const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
   return (
     <SafeAreaView className="flex-1 bg-[#BCD38B]">

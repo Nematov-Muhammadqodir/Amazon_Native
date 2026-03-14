@@ -16,7 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface GetOrCreateRoomResponse {
+export interface GetOrCreateRoomResponse {
   getOrCreateRoom: {
     _id: string;
     participants: Member[];

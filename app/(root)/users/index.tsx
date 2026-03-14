@@ -24,6 +24,9 @@ export default function Users() {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const { socket, isConnected } = useSocket(loggedInUser._id);
   const users = getUsersData?.getAllUsers;
+  const filteredUsers = users?.filter(
+    (user: Member) => user._id !== loggedInUser._id
+  );
   console.log("users", users);
   const { width, height } = useWindowDimensions();
 
@@ -71,7 +74,7 @@ export default function Users() {
         <HorizontalLine />
 
         <View className="mt-5 px-5 gap-2">
-          {users?.map((user: Member) => (
+          {filteredUsers?.map((user: Member) => (
             <Pressable
               key={user._id}
               onPress={() => router.push(`/users/${user._id}`)}

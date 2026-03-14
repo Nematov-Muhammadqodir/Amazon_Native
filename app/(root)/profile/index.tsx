@@ -4,10 +4,11 @@ import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import { images } from "@/constants";
 import { getToken, saveToken, updateUserInfo } from "@/libs/auth";
-import { Messages, REACT_APP_API_URL } from "@/types/config";
+import { getImageUrl, Messages, REACT_APP_API_URL } from "@/types/config";
 import { MemberUpdate } from "@/types/member/member.update";
 import { sweetErrorHandling, sweetMixinSuccessAlert } from "@/types/sweetAlert";
 import { useMutation, useReactiveVar } from "@apollo/client/react";
+import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import Feather from "@expo/vector-icons/Feather";
@@ -16,7 +17,15 @@ import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface UpdateMemberResponse {
@@ -28,6 +37,7 @@ interface UpdateMemberResponse {
 export default function MyPage() {
   const user = useReactiveVar(userVar);
   const imgPath = `${REACT_APP_API_URL}/${user.memberImage}`;
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   /** APOLLO REQUESTS **/
   const [updateMember] = useMutation<UpdateMemberResponse>(UPDATE_MEMBER);
@@ -232,12 +242,18 @@ export default function MyPage() {
               <View className="absolute -bottom-16 items-center">
                 <View className="bg-white p-2 rounded-full">
                   {updateData.memberImage ? (
-                    <Image
-                      source={{
-                        uri: `${REACT_APP_API_URL}/${updateData.memberImage}`,
-                      }}
-                      className="w-32 h-32 rounded-full"
-                    />
+                    <Pressable
+                      onPress={() =>
+                        setSelectedImage(getImageUrl(updateData.memberImage))
+                      }
+                    >
+                      <Image
+                        source={{
+                          uri: `${REACT_APP_API_URL}/${updateData.memberImage}`,
+                        }}
+                        className="w-32 h-32 rounded-full"
+                      />
+                    </Pressable>
                   ) : (
                     <Image
                       source={images.defaultUser}
@@ -251,6 +267,39 @@ export default function MyPage() {
                   >
                     <EvilIcons name="pencil" size={18} color="black" />
                   </Pressable>
+
+                  <Modal
+                    visible={!!selectedImage}
+                    transparent
+                    animationType="fade"
+                  >
+                    <View className="flex-1 bg-black justify-center items-center">
+                      {/* Close Button */}
+                      <Pressable
+                        onPress={() => setSelectedImage(null)}
+                        style={{
+                          position: "absolute",
+                          top: 60,
+                          right: 20,
+                          zIndex: 10,
+                        }}
+                      >
+                        <Ionicons name="close" size={32} color="white" />
+                      </Pressable>
+
+                      {/* Fullscreen Image */}
+                      {selectedImage && (
+                        <Image
+                          source={{ uri: selectedImage }}
+                          style={{
+                            width: "100%",
+                            height: "80%",
+                          }}
+                          resizeMode="contain"
+                        />
+                      )}
+                    </View>
+                  </Modal>
                 </View>
               </View>
             </View>
