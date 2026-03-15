@@ -396,3 +396,57 @@ export const GET_MEMBER_FOLLOWERS = gql`
     }
   }
 `;
+
+export const GET_MEMBER_FOLLOWINGS = gql`
+  query GetMemberFollowings($input: FollowInquiry!) {
+    getMemberFollowings(input: $input) {
+      list {
+        _id
+        followingId
+        followerId
+        createdAt
+        updatedAt
+        meLiked {
+          memberId
+          likeRefId
+          myFavorite
+        }
+        meFollowed {
+          followingId
+          followerId
+          myFollowing
+        }
+        followingData {
+          _id
+          memberType
+          memberStatus
+          memberAuthType
+          memberPhone
+          memberNick
+          memberFullName
+          memberImage
+          memberAddress
+          memberDesc
+          memberProducts
+          memberArticles
+          memberFollowers
+          memberFollowings
+          memberPoints
+          memberLikes
+          memberViews
+          memberComments
+          memberRank
+          memberWarnings
+          memberBlocks
+          deletedAt
+          createdAt
+          updatedAt
+          accessToken
+        }
+      }
+      metaCounter {
+        total
+      }
+    }
+  }
+`;

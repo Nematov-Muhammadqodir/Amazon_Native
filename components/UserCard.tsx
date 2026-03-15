@@ -8,9 +8,9 @@ import { Image, Text, View } from "react-native";
 import CustomButton from "./CustomButton";
 
 interface MemberFollowsProps {
-  initialInput: FollowInquiry;
-  subscribeHandler: any;
-  unsubscribeHandler: any;
+  initialInput?: FollowInquiry;
+  subscribeHandler?: any;
+  unsubscribeHandler?: any;
 }
 
 interface Props extends MemberFollowsProps {
