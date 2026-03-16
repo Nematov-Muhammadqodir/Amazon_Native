@@ -2,10 +2,8 @@ import { images } from "@/constants";
 import { REACT_APP_API_URL } from "@/types/config";
 import { FollowInquiry } from "@/types/follow/follow.input";
 import { Member } from "@/types/member/member";
-import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Image, Text, View } from "react-native";
-import CustomButton from "./CustomButton";
 
 interface MemberFollowsProps {
   initialInput?: FollowInquiry;
@@ -55,26 +53,9 @@ export default function UserCard({
         </View>
       </View>
 
-      <CustomButton
-        title={isFollowing ? "Unfollow" : "Follow"}
-        IconLeft={
-          <Feather
-            name={isFollowing ? "user-minus" : "user-plus"}
-            size={20}
-            color="#155FEF"
-          />
-        }
-        className="rounded-xl px-5 gap-2 bg-[#F0F8FF]"
-        textStyle="font-JakartaSemiBold font-normal"
-        textVariant="primary"
-        onPress={() => {
-          if (isFollowing) {
-            unsubscribeHandler(user._id);
-          } else {
-            subscribeHandler(user._id);
-          }
-        }}
-      />
+      <Text className="text-black font-JakartaSemiBold text-[12px]">
+        {user.memberType}
+      </Text>
     </View>
   );
 }
