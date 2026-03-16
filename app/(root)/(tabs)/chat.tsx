@@ -1,12 +1,10 @@
 import { userVar } from "@/apollo/store";
-import { GET_OR_CREATE_ROOM } from "@/apollo/user/mutation";
 import UserCard from "@/components/UserCard";
-import { useFollow } from "@/hooks/useFollow";
+import { useGetOrCreateRoom } from "@/hooks/useGetOrCreateRoom";
 import { useSocket } from "@/hooks/useSocket";
-import { useUser } from "@/hooks/useUser";
 import { useUsers } from "@/hooks/useUsers";
 import { Member } from "@/types/member/member";
-import { useMutation, useReactiveVar } from "@apollo/client/react";
+import { useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -18,28 +16,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export interface GetOrCreateRoomResponse {
-  getOrCreateRoom: {
-    _id: string;
-    participants: Member[];
-    lastMessage?: string;
-    createdAt: string;
-  };
-}
-
 export default function Chat() {
   const loggedInUser = useReactiveVar(userVar);
-  const [initialInput, setInitialInput] = useState({
-    page: 1,
-    limit: 5,
-    search: {
-      followingId: "",
-    },
-  });
-  const { getUserRefetch } = useUser(loggedInUser._id);
-  const { subscribeHandler, unsubscribeHandler } = useFollow();
   const [active, setActive] = useState<"chats" | "groups">("chats");
-  const { socket, isConnected } = useSocket(loggedInUser._id);
+  const { socket } = useSocket(loggedInUser._id);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   const translateX = useSharedValue(0);
@@ -55,7 +35,7 @@ export default function Chat() {
     translateX.value = type === "chats" ? 0 : 150; // move slider
   };
 
-  const { getUsersLoading, getUsersData } = useUsers();
+  const { getUsersData } = useUsers();
   const users = useMemo(() => {
     if (!getUsersData?.getAllUsers) return [];
 
@@ -64,8 +44,7 @@ export default function Chat() {
     );
   }, [getUsersData, loggedInUser._id]);
 
-  const [getOrCreateRoom] =
-    useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);
+  const { getOrCreateRoom } = useGetOrCreateRoom();
   console.log("userssss", users[0]);
 
   const openChat = async (targetUserId: string) => {
@@ -105,8 +84,7 @@ export default function Chat() {
 
     socket.on("onlineUsers", handleOnlineUsers);
 
-    // ✅ Request current online users after subscribing
-    // so we don't miss the event that fired on connection
+    // Request current online users after subscribing
     socket.emit("getOnlineUsers");
 
     return () => {
@@ -180,9 +158,6 @@ export default function Chat() {
               <UserCard
                 user={user}
                 isOnline={onlineUsers.includes(user._id)}
-                initialInput={initialInput}
-                subscribeHandler={subscribeHandler}
-                unsubscribeHandler={unsubscribeHandler}
               />
             </Pressable>
           ))}

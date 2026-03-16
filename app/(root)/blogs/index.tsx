@@ -1,31 +1,19 @@
-import { GET_BOARD_ARTICLES } from "@/apollo/user/query";
 import BlogsCart from "@/components/BlogsCart";
-import { GetBlogsResponse } from "@/components/homePage/BoardArticlesList";
 import BlogsLayout from "@/components/layouts/BlogsLayout";
+import { useBoardArticles } from "@/hooks/useBoardArticles";
 import { extractTextFromHTML } from "@/types/config";
-import { useQuery } from "@apollo/client/react";
 import React, { useRef, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { Modalize } from "react-native-modalize";
-import { Host, Portal } from "react-native-portalize"; // 👈 add this
+import { Host, Portal } from "react-native-portalize";
 
 export default function Blogs() {
-  const {
-    loading: boardArticlesLoading,
-    data: boardArticlesData,
-    error: boardArticlesError,
-  } = useQuery<GetBlogsResponse>(GET_BOARD_ARTICLES, {
-    fetchPolicy: "cache-and-network",
-    variables: {
-      input: {
-        page: 1,
-        limit: 10,
-        sort: "createdAt",
-        direction: "ASC",
-        search: {},
-      },
-    },
-    notifyOnNetworkStatusChange: true,
+  const { boardArticlesData } = useBoardArticles({
+    page: 1,
+    limit: 10,
+    sort: "createdAt",
+    direction: "ASC",
+    search: {},
   });
 
   const boardArticles = boardArticlesData?.getBoardArticles.list;
@@ -39,7 +27,6 @@ export default function Blogs() {
   };
 
   return (
-    // 👇 Wrap with Host so Portal can escape the ScrollView
     <Host>
       <BlogsLayout>
         <View className="mt-5 px-[25px]">
@@ -72,7 +59,6 @@ export default function Blogs() {
         </ScrollView>
       </BlogsLayout>
 
-      {/* 👇 Portal lifts Modalize to the top of the tree, above ScrollView & Footer */}
       <Portal>
         <Modalize ref={modalizeRef} adjustToContentHeight snapPoint={400}>
           <View className="p-5 h-[400px]">

@@ -1,6 +1,6 @@
 import { userVar } from "@/apollo/store";
-import { LIKE_TARGET_PRODUCT } from "@/apollo/user/mutation";
 import { useProduct } from "@/hooks/useProduct";
+import { useLikeProduct } from "@/hooks/useLikeProduct";
 import { Message } from "@/libs/enums/common.enum";
 import { addItem } from "@/slice/cartSlice";
 import { T } from "@/types/common";
@@ -10,7 +10,7 @@ import {
   sweetMixinErrorAlert,
   sweetTopSmallSuccessAlert,
 } from "@/types/sweetAlert";
-import { useMutation, useReactiveVar } from "@apollo/client/react";
+import { useReactiveVar } from "@apollo/client/react";
 import Entypo from "@expo/vector-icons/Entypo";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -21,7 +21,7 @@ import RatingStars from "./RatingStars";
 export default function FeaturedProductCard({ product }: { product: Product }) {
   const dispatch = useDispatch();
   const user = useReactiveVar(userVar);
-  const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT);
+  const { likeTargetProduct } = useLikeProduct();
 
   const { getProductRefetch } = useProduct(product._id);
 
@@ -34,7 +34,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
     (Number(product.productPrice) * product.productDiscountRate) / 100;
 
   /* -----------------------------
-     🔥 FLY TO CART ANIMATION
+     FLY TO CART ANIMATION
   ------------------------------ */
 
   const flyAnim = useRef(new Animated.Value(0)).current;
@@ -65,7 +65,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
   };
 
   /* -----------------------------
-     ❤️ LIKE HANDLER
+     LIKE HANDLER
   ------------------------------ */
 
   const likeProductHandler = async (user: T, id: string) => {
@@ -84,7 +84,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
   };
 
   /* -----------------------------
-     🛒 ADD TO CART HANDLER
+     ADD TO CART HANDLER
   ------------------------------ */
 
   const addToCartHandler = () => {
@@ -99,7 +99,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
       })
     );
 
-    animateToCart(); // 🔥 trigger animation
+    animateToCart();
   };
 
   return (
@@ -110,7 +110,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
           <View className="w-[98px] h-[110px] rounded-lg bg-[#F5F5F5] flex items-center justify-center relative">
             <Image source={{ uri: imgPath }} className="w-[90px] h-[90px]" />
 
-            {/* ❤️ Like Button */}
+            {/* Like Button */}
             <Pressable
               className="absolute top-2 left-2"
               onPress={() => likeProductHandler(user, product?._id)}
@@ -152,7 +152,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
             <View className="flex flex-row justify-between relative">
               <RatingStars rating={4} />
 
-              {/* 🛒 ADD BUTTON */}
+              {/* ADD BUTTON */}
               <Pressable
                 className="bg-[#1A8057] p-3 rounded-full absolute right-[15%] bottom-[-12px]"
                 onPress={addToCartHandler}
@@ -164,7 +164,7 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
         </View>
       </Pressable>
 
-      {/* 🔥 FLYING PLUS ICON */}
+      {/* FLYING PLUS ICON */}
       {showFlyIcon && (
         <Animated.View
           style={{

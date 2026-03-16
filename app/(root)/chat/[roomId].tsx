@@ -1,12 +1,12 @@
 import { userVar } from "@/apollo/store";
-import { GET_CHAT_ROOM, GET_MESSAGES } from "@/apollo/user/query";
 import { images } from "@/constants";
+import { useChatRoom } from "@/hooks/useChatRoom";
 import { getToken } from "@/libs/auth";
 import { getSocket } from "@/libs/socket";
 
-import { ChatRoomType, GetMessages, MessageType } from "@/types/chat/chat";
+import { MessageType } from "@/types/chat/chat";
 import { getImageUrl, REACT_APP_API_URL } from "@/types/config";
-import { useQuery, useReactiveVar } from "@apollo/client/react";
+import { useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
@@ -28,10 +28,6 @@ import {
 import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface ChatRoomInterface {
-  getChatRoom: ChatRoomType;
-}
-
 interface MessageInput {
   text?: string;
   image?: string;
@@ -46,26 +42,15 @@ export default function Chat() {
   const socket = getSocket();
   const roomIdString = Array.isArray(roomId) ? roomId[0] : roomId;
   console.log("roomId", roomId);
+
   const {
-    loading: getChatRoomLoading,
-    data: getChatRoomData,
-    error: getChatRoomError,
-    refetch: getChatRoomRefetch,
-  } = useQuery<ChatRoomInterface>(GET_CHAT_ROOM, {
-    fetchPolicy: "cache-and-network",
-    variables: { roomId: roomId },
-    skip: !roomId,
-  });
+    getChatRoomData,
+    getMessagesData,
+    getMessagesRefetch,
+  } = useChatRoom(roomIdString);
+
   const otherUser = getChatRoomData?.getChatRoom.participants.find(
     (participant) => participant._id !== loggedInUser?._id
-  );
-
-  const { data, refetch: getMessagesRefetch } = useQuery<GetMessages>(
-    GET_MESSAGES,
-    {
-      variables: { roomId: roomIdString },
-      skip: !roomIdString,
-    }
   );
 
   const user = otherUser;
@@ -96,10 +81,10 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    if (data?.getMessages) {
-      setMessages([...data.getMessages].reverse());
+    if (getMessagesData?.getMessages) {
+      setMessages([...getMessagesData.getMessages].reverse());
     }
-  }, [data]);
+  }, [getMessagesData]);
 
   useEffect(() => {
     if (!roomIdString) return;

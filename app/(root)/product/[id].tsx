@@ -1,6 +1,4 @@
 import { userVar } from "@/apollo/store";
-import { CREATE_COMMENT, LIKE_TARGET_PRODUCT } from "@/apollo/user/mutation";
-import { GET_COMMENTS } from "@/apollo/user/query";
 import CommentInputBox from "@/components/CommentInputBox";
 import CustomButton from "@/components/CustomButton";
 import FeaturedProducts from "@/components/FeaturedProducts";
@@ -9,19 +7,22 @@ import HomeLayout from "@/components/layouts/HomeLayout";
 import RatingStars from "@/components/RatingStars";
 import TestimonialCard from "@/components/TestimonialCard";
 import { images } from "@/constants";
+import { useComments } from "@/hooks/useComments";
+import { useCreateComment } from "@/hooks/useCreateComment";
+import { useLikeProduct } from "@/hooks/useLikeProduct";
 import { useProduct } from "@/hooks/useProduct";
 import { CommentGroup } from "@/libs/enums/comment.enum";
 import { Message } from "@/libs/enums/common.enum";
 import { addItem, removeItem } from "@/slice/cartSlice";
 import { RootState } from "@/store";
-import { Comment, Comments } from "@/types/comment/comment";
+import { Comment } from "@/types/comment/comment";
 import { CommentInput, CommentsInquiry } from "@/types/comment/comment.input";
 import { REACT_APP_API_URL } from "@/types/config";
 import {
   sweetMixinErrorAlert,
   sweetTopSmallSuccessAlert,
 } from "@/types/sweetAlert";
-import { useMutation, useQuery, useReactiveVar } from "@apollo/client/react";
+import { useReactiveVar } from "@apollo/client/react";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -39,10 +40,6 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
-interface GetComments {
-  getComments: Comments;
-}
 
 const DEFAULT_COMMENT_INQUIRY: CommentsInquiry = {
   page: 1,
@@ -70,37 +67,14 @@ export default function ProductDetail() {
     DEFAULT_COMMENT_INQUIRY
   );
 
-  // ✅ Local state for optimistic UI
+  // Local state for optimistic UI
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const hasInitialized = useRef(false); // ✅ Track initialization
+  const hasInitialized = useRef(false);
 
-  const [createComment] = useMutation(CREATE_COMMENT);
-
-  // ✅ Disable auto-refetch on mutation
-  const [likeTargetProduct] = useMutation(LIKE_TARGET_PRODUCT, {
-    update(cache, { data }) {
-      if (!product?._id) return;
-
-      const id = cache.identify({
-        __typename: "Product",
-        _id: product._id,
-      });
-
-      cache.modify({
-        id,
-        fields: {
-          productLikes(existing) {
-            return isLiked ? existing - 1 : existing + 1;
-          },
-          meLiked() {
-            return [{ myFavorite: !isLiked }];
-          },
-        },
-      });
-    },
-  });
+  const { createComment } = useCreateComment();
+  const { likeTargetProduct } = useLikeProduct();
 
   useEffect(() => {
     if (!id) return;
@@ -143,7 +117,7 @@ export default function ProductDetail() {
 
   const { getProductLoading, getProductData, getProductError } = useProduct(id);
 
-  // ✅ Start bounce animation on mount
+  // Start bounce animation on mount
   useEffect(() => {
     startBounceAnimation();
 
@@ -154,12 +128,7 @@ export default function ProductDetail() {
     };
   }, []);
 
-  const { data: getCommentsData, refetch: getCommentsRefetch } =
-    useQuery<GetComments>(GET_COMMENTS, {
-      fetchPolicy: "network-only",
-      variables: { input: commentInquiry },
-      notifyOnNetworkStatusChange: true,
-    });
+  const { getCommentsData, getCommentsRefetch } = useComments(commentInquiry);
 
   const commentTotal = getCommentsData?.getComments?.metaCounter[0]?.total ?? 0;
 
@@ -167,7 +136,7 @@ export default function ProductDetail() {
   const product = getProductData?.getProduct;
   const [activeImage, setActiveImage] = useState<string>("");
 
-  // ✅ Initialize like state ONLY ONCE when product first loads
+  // Initialize like state ONLY ONCE when product first loads
   useEffect(() => {
     if (product && !hasInitialized.current) {
       console.log("Initial product load (ONCE):", {
@@ -182,7 +151,7 @@ export default function ProductDetail() {
 
       setIsLiked(Boolean(product?.meLiked && product.meLiked[0]?.myFavorite));
       setLikeCount(product?.productLikes || 0);
-      hasInitialized.current = true; // ✅ Mark as initialized
+      hasInitialized.current = true;
     }
   }, [product]);
 
@@ -228,7 +197,7 @@ export default function ProductDetail() {
     }, 100);
   };
 
-  // ✅ Instagram-style like animation
+  // Instagram-style like animation
   const animateHeart = () => {
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -244,7 +213,7 @@ export default function ProductDetail() {
     ]).start();
   };
 
-  // ✅ Optimistic like handler (Instagram-style)
+  // Optimistic like handler
   const likeProductHandler = async () => {
     try {
       if (!product?._id) return;
@@ -253,36 +222,56 @@ export default function ProductDetail() {
         return;
       }
 
-      console.log("🔵 Before like:", { isLiked, likeCount });
+      console.log("Before like:", { isLiked, likeCount });
 
-      // ✅ Optimistic UI update (instant feedback)
+      // Optimistic UI update
       const newLikedState = !isLiked;
       setIsLiked(newLikedState);
       setLikeCount((prev) => (newLikedState ? prev + 1 : prev - 1));
       animateHeart();
 
-      console.log("🟢 After like (optimistic):", {
+      console.log("After like (optimistic):", {
         newLikedState,
         newCount: likeCount + (newLikedState ? 1 : -1),
       });
 
-      // ✅ Call API in background (no refetch!)
+      // Call API in background
       likeTargetProduct({
         variables: { input: product._id },
+        update(cache) {
+          if (!product?._id) return;
+
+          const cacheId = cache.identify({
+            __typename: "Product",
+            _id: product._id,
+          });
+
+          cache.modify({
+            id: cacheId,
+            fields: {
+              productLikes(existing) {
+                return isLiked ? existing - 1 : existing + 1;
+              },
+              meLiked() {
+                return [{ myFavorite: !isLiked }];
+              },
+            },
+          });
+        },
       })
         .then(() => {
-          console.log("✅ Like mutation successful");
+          console.log("Like mutation successful");
         })
         .catch((err) => {
-          console.log("❌ API Error - Rolling back:", err);
-          // ✅ Rollback on error
+          console.log("API Error - Rolling back:", err);
+          // Rollback on error
           setIsLiked(!newLikedState);
           setLikeCount((prev) => (newLikedState ? prev - 1 : prev + 1));
           sweetMixinErrorAlert(err.message);
         });
     } catch (err: any) {
       console.log("Error, likeProductHandler", err);
-      // ✅ Rollback on error
+      // Rollback on error
       const currentLiked = isLiked;
       setIsLiked(!currentLiked);
       setLikeCount((prev) => (currentLiked ? prev + 1 : prev - 1));
@@ -342,7 +331,6 @@ export default function ProductDetail() {
               onPress={likeProductHandler}
             >
               <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                {/* ✅ Use local state, not product.meLiked */}
                 {isLiked ? (
                   <Entypo name="heart" size={24} color="red" />
                 ) : (

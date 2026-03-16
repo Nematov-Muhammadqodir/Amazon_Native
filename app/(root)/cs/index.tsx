@@ -1,16 +1,11 @@
-import { GET_NOTICES } from "@/apollo/user/query";
 import BlogsLayout from "@/components/layouts/BlogsLayout";
 import MenuDropdown from "@/components/MenuDropdown";
+import { useNotices } from "@/hooks/useNotices";
 import { NoticeFor } from "@/libs/enums/notice.enum";
 import { Notice } from "@/types/cs/notice";
-import { useQuery } from "@apollo/client/react";
 import Octicons from "@expo/vector-icons/Octicons";
 import React, { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-
-interface CSInterface {
-  getNotices: Notice[];
-}
 
 export default function CS() {
   const category = Object.values(NoticeFor);
@@ -18,20 +13,9 @@ export default function CS() {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   console.log("categoryFilter", categoryFilter);
 
-  /** APOLLO REQUESTS **/
-
-  const {
-    loading: noticesLoading,
-    data: noticesData,
-    error: noticesError,
-    refetch: noticesRefetch,
-  } = useQuery<CSInterface>(GET_NOTICES, {
-    fetchPolicy: "network-only",
-    variables: {
-      input: categoryFilter ? { noticeFor: categoryFilter } : {},
-    },
-    notifyOnNetworkStatusChange: true,
-  });
+  const { noticesData, noticesRefetch } = useNotices(
+    categoryFilter ? { noticeFor: categoryFilter } : {}
+  );
 
   const [openId, setOpenId] = useState<string | null>(null);
 

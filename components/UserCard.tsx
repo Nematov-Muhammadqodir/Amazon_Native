@@ -1,30 +1,16 @@
 import { images } from "@/constants";
 import { REACT_APP_API_URL } from "@/types/config";
-import { FollowInquiry } from "@/types/follow/follow.input";
 import { Member } from "@/types/member/member";
 import React from "react";
 import { Image, Text, View } from "react-native";
 
-interface MemberFollowsProps {
-  initialInput?: FollowInquiry;
-  subscribeHandler?: any;
-  unsubscribeHandler?: any;
-}
-
-interface Props extends MemberFollowsProps {
+interface Props {
   user: Member;
   isOnline?: boolean;
 }
 
-export default function UserCard({
-  user,
-  isOnline,
-  subscribeHandler,
-  unsubscribeHandler,
-}: Props) {
+export default function UserCard({ user, isOnline }: Props) {
   const imgPath = `${REACT_APP_API_URL}/${user.memberImage}`;
-  const isFollowing = user.meFollowed?.[0]?.myFollowing ?? false;
-  console.log("user", isFollowing);
 
   return (
     <View className="flex flex-row w-full items-center justify-between border-b-[1px] pb-2 border-gray-300">

@@ -1,15 +1,15 @@
 import { userVar } from "@/apollo/store";
-import { UPDATE_MEMBER } from "@/apollo/user/mutation";
 import CustomButton from "@/components/CustomButton";
 import Followers from "@/components/Followers";
 import Followings from "@/components/Followings";
 import InputField from "@/components/InputField";
 import { images } from "@/constants";
+import { useUpdateMember } from "@/hooks/useUpdateMember";
 import { getToken, saveToken, updateUserInfo } from "@/libs/auth";
 import { getImageUrl, Messages, REACT_APP_API_URL } from "@/types/config";
 import { MemberUpdate } from "@/types/member/member.update";
 import { sweetErrorHandling, sweetMixinSuccessAlert } from "@/types/sweetAlert";
-import { useMutation, useReactiveVar } from "@apollo/client/react";
+import { useReactiveVar } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
@@ -32,12 +32,6 @@ import { Modalize } from "react-native-modalize";
 import { Host, Portal } from "react-native-portalize";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface UpdateMemberResponse {
-  updateMember: {
-    accessToken: string;
-  };
-}
-
 export default function MyPage() {
   const user = useReactiveVar(userVar);
   const imgPath = `${REACT_APP_API_URL}/${user.memberImage}`;
@@ -47,7 +41,7 @@ export default function MyPage() {
   >(null);
 
   /** APOLLO REQUESTS **/
-  const [updateMember] = useMutation<UpdateMemberResponse>(UPDATE_MEMBER);
+  const { updateMember } = useUpdateMember();
   const [updateData, setUpdateData] = useState<MemberUpdate>({
     _id: "",
     memberImage: "",

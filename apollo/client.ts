@@ -93,5 +93,11 @@ const splitLink = split(
 
 export const client = new ApolloClient({
   link: from([errorLink, splitLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Member: {
+        keyFields: ["_id"],
+      },
+    },
+  }),
 });

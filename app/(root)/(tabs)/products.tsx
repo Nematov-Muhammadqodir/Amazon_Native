@@ -1,22 +1,16 @@
-import { GET_PRODUCTS } from "@/apollo/user/query";
 import AllProducts from "@/components/AllProducts";
 import Category from "@/components/Category";
 import HomeLayout from "@/components/layouts/HomeLayout";
 import MenuDropdown from "@/components/MenuDropdown";
 import { images } from "@/constants";
+import { useProducts } from "@/hooks/useProducts";
 import { Direction } from "@/libs/enums/common.enum";
 import { ProductCollection, ProductFrom } from "@/libs/enums/product.enum";
-import { Products } from "@/types/product/product";
 import { ProductsInquiry } from "@/types/product/product.input";
-import { useQuery } from "@apollo/client/react";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
-
-interface GetProductsResponse {
-  getProducts: Products;
-}
 
 export default function ProductsPage() {
   const { collection } = useLocalSearchParams();
@@ -48,16 +42,8 @@ export default function ProductsPage() {
         search: { productCollection: collection },
       });
   };
-  const {
-    loading: getProductsLoading,
-    data: getProductsData,
-    error: getProductsError,
-    refetch: getProductsRefetch,
-  } = useQuery<GetProductsResponse>(GET_PRODUCTS, {
-    fetchPolicy: "network-only",
-    variables: { input: searchFilter },
-    notifyOnNetworkStatusChange: true,
-  });
+
+  const { getProductsData } = useProducts(searchFilter);
 
   const handleFiltering = (value: string) => {
     switch (value) {

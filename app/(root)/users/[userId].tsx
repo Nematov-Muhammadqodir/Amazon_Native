@@ -1,14 +1,14 @@
-import { GET_OR_CREATE_ROOM, UPDATE_MEMBER } from "@/apollo/user/mutation";
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import { images } from "@/constants";
 import { useFollow } from "@/hooks/useFollow";
+import { useGetOrCreateRoom } from "@/hooks/useGetOrCreateRoom";
+import { useUpdateMember } from "@/hooks/useUpdateMember";
 import { useUser } from "@/hooks/useUser";
 import { getToken, saveToken, updateUserInfo } from "@/libs/auth";
 import { Messages, REACT_APP_API_URL } from "@/types/config";
 import { MemberUpdate } from "@/types/member/member.update";
 import { sweetErrorHandling, sweetMixinSuccessAlert } from "@/types/sweetAlert";
-import { useMutation } from "@apollo/client/react";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import axios from "axios";
@@ -17,13 +17,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { GetOrCreateRoomResponse } from "../(tabs)/chat";
-
-interface UpdateMemberResponse {
-  updateMember: {
-    accessToken: string;
-  };
-}
 
 export default function UserPage() {
   const { userId } = useLocalSearchParams();
@@ -37,7 +30,8 @@ export default function UserPage() {
   const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
 
   /** APOLLO REQUESTS **/
-  const [updateMember] = useMutation<UpdateMemberResponse>(UPDATE_MEMBER);
+  const { updateMember } = useUpdateMember();
+  const { getOrCreateRoom } = useGetOrCreateRoom();
   const [updateData, setUpdateData] = useState<MemberUpdate>({
     _id: "",
     memberImage: "",
@@ -208,8 +202,6 @@ export default function UserPage() {
       console.log("Image picker error:", err);
     }
   };
-  const [getOrCreateRoom] =
-    useMutation<GetOrCreateRoomResponse>(GET_OR_CREATE_ROOM);
 
   const openChat = async (targetUserId: string) => {
     console.log("targetUserId", targetUserId);
