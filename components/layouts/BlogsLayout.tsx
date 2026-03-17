@@ -1,3 +1,6 @@
+import { userVar } from "@/apollo/store";
+import { getRoleRoute } from "@/libs/utils/getRoleRoute";
+import { useReactiveVar } from "@apollo/client/react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -15,6 +18,9 @@ export default function BlogsLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const user = useReactiveVar(userVar);
+  const homeRoute = getRoleRoute(user.memberType);
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["left", "right"]}>
       <ScrollView
@@ -23,7 +29,7 @@ export default function BlogsLayout({
       >
         <View className="flex flex-col h-auto px-3 bg-[#1A8057] pt-[40px] pb-5">
           <View className="flex flex-row w-full justify-between mt-8 items-center px-2">
-            <Pressable onPress={() => router.push("/(root)/(tabs)/home")}>
+            <Pressable onPress={() => router.push(homeRoute as any)}>
               <Logo />
             </Pressable>
             <View className="flex flex-row items-center gap-3">

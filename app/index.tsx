@@ -1,6 +1,7 @@
 import { userVar } from "@/apollo/store";
 import "@/global.css";
 import { hydrateAuth } from "@/libs/auth";
+import { getRoleRoute } from "@/libs/utils/getRoleRoute";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,7 @@ export default function InitialEnter() {
   const user = userVar();
 
   if (user._id) {
-    return <Redirect href="/(root)/(tabs)/home" />;
+    return <Redirect href={getRoleRoute(user.memberType) as any} />;
   }
 
   return <Redirect href="/sign-up" />;

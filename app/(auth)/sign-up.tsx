@@ -4,6 +4,8 @@ import InputField from "@/components/InputField";
 import { icons } from "@/constants";
 import { useSocket } from "@/hooks/useSocket";
 import { getToken, signUp } from "@/libs/auth";
+import { MemberType } from "@/libs/enums/member.enum";
+import { getRoleRoute } from "@/libs/utils/getRoleRoute";
 import { sweetErrorAlert } from "@/types/sweetAlert";
 import { useReactiveVar } from "@apollo/client/react";
 import { Link, router } from "expo-router";
@@ -12,9 +14,28 @@ import {
   ActivityIndicator,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const MEMBER_TYPES = [
+  {
+    value: MemberType.USER,
+    label: "Buyer",
+    desc: "Browse and purchase products",
+  },
+  {
+    value: MemberType.VENDOR,
+    label: "Vendor",
+    desc: "Sell your products",
+  },
+  {
+    value: MemberType.ADMIN,
+    label: "Admin",
+    desc: "Manage the platform",
+  },
+];
 
 export default function SignUp() {
   const user = useReactiveVar(userVar);
@@ -25,7 +46,7 @@ export default function SignUp() {
     (async () => {
       const token = await getToken();
       if (token && user._id !== "") {
-        router.replace("/(root)/(tabs)/home");
+        router.replace(getRoleRoute(user.memberType) as any);
       }
     })();
   }, []);
@@ -35,6 +56,7 @@ export default function SignUp() {
     password: "",
     phone: "",
     type: "USER",
+    adminCode: "",
   });
 
   const handleInput = useCallback((name: string, value: string) => {
@@ -55,10 +77,23 @@ export default function SignUp() {
       return;
     }
 
+    if (input.type === MemberType.ADMIN) {
+      const secret = process.env.EXPO_PUBLIC_ADMIN_SECRET;
+      if (!secret || input.adminCode !== secret) {
+        await sweetErrorAlert("Invalid admin secret code");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      await signUp(input.nick, input.password, input.phone, input.type);
-      router.replace("/(root)/(tabs)/home");
+      const userData = await signUp(
+        input.nick,
+        input.password,
+        input.phone,
+        input.type
+      );
+      router.replace(getRoleRoute(userData.memberType) as any);
     } catch (err: any) {
       await sweetErrorAlert(err?.message || "Sign up failed");
     } finally {
@@ -108,10 +143,79 @@ export default function SignUp() {
             onChangeText={(value) => handleInput("password", value)}
           />
 
+          {/* Member Type Picker */}
+          <View className="my-4">
+            <Text className="text-lg font-JakartaSemiBold mb-3">
+              I want to join as{" "}
+              <Text className="text-gray-400 text-sm font-Jakarta">
+                (optional)
+              </Text>
+            </Text>
+            <View className="flex-row flex-wrap gap-3">
+              {MEMBER_TYPES.map((type) => {
+                const isSelected = input.type === type.value;
+                const isAdmin = type.value === MemberType.ADMIN;
+                const selectedColor = isAdmin ? "#1a1a2e" : "#2D4D23";
+                const selectedBg = isAdmin ? "#EEEEF5" : "#F3F9F5";
+                return (
+                  <TouchableOpacity
+                    key={type.value}
+                    className={`flex-1 min-w-[30%] p-4 rounded-2xl border-2 ${
+                      isSelected
+                        ? `bg-[${selectedBg}]`
+                        : "border-gray-200 bg-white"
+                    }`}
+                    style={
+                      isSelected
+                        ? {
+                            borderColor: selectedColor,
+                            backgroundColor: selectedBg,
+                          }
+                        : undefined
+                    }
+                    onPress={() => handleInput("type", type.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className={`text-base font-JakartaBold text-center ${
+                        isSelected ? "" : "text-gray-500"
+                      }`}
+                      style={isSelected ? { color: selectedColor } : undefined}
+                    >
+                      {type.label}
+                    </Text>
+                    <Text
+                      className={`text-xs font-Jakarta text-center mt-1 ${
+                        isSelected ? "" : "text-gray-400"
+                      }`}
+                      style={isSelected ? { color: selectedColor } : undefined}
+                    >
+                      {type.desc}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Admin Secret Code */}
+            {input.type === MemberType.ADMIN && (
+              <View className="mt-3">
+                <InputField
+                  label="Admin Secret Code"
+                  placeholder="Enter admin secret code"
+                  icon={icons.lock}
+                  value={input.adminCode}
+                  secureTextEntry
+                  onChangeText={(value) => handleInput("adminCode", value)}
+                />
+              </View>
+            )}
+          </View>
+
           <CustomButton
             title={loading ? "" : "Sign Up"}
             bgVariant="dark-green"
-            className="mt-6"
+            className="mt-4"
             onPress={doSignUp}
             disabled={loading}
             IconLeft={

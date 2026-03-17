@@ -1,4 +1,7 @@
+import { userVar } from "@/apollo/store";
 import { logOut } from "@/libs/auth";
+import { getRoleRoute } from "@/libs/utils/getRoleRoute";
+import { useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React from "react";
@@ -15,6 +18,9 @@ export default function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const user = useReactiveVar(userVar);
+  const homeRoute = getRoleRoute(user.memberType);
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <ScrollView
@@ -34,7 +40,7 @@ export default function HomeLayout({
             </Text>
           </View>
           <View className="flex flex-row w-full justify-between mt-8 items-center px-4">
-            <Pressable onPress={() => router.push("/(root)/(tabs)/home")}>
+            <Pressable onPress={() => router.push(homeRoute as any)}>
               <Logo />
             </Pressable>
             <MenuDropdown

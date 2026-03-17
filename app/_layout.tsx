@@ -53,6 +53,18 @@ export default function RootLayout() {
                     name="(root)"
                     options={{ headerShown: false }}
                   />
+                  <Stack.Screen
+                    name="(user)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(vendor)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(admin)"
+                    options={{ headerShown: false }}
+                  />
                 </Stack>
               </GestureHandlerRootView>
               <Toast />

@@ -13,6 +13,7 @@ import { useLikeProduct } from "@/hooks/useLikeProduct";
 import { useProduct } from "@/hooks/useProduct";
 import { CommentGroup } from "@/libs/enums/comment.enum";
 import { Message } from "@/libs/enums/common.enum";
+import { getRoleRoute } from "@/libs/utils/getRoleRoute";
 import { addItem, removeItem } from "@/slice/cartSlice";
 import { RootState } from "@/store";
 import { Comment } from "@/types/comment/comment";
@@ -295,7 +296,7 @@ export default function ProductDetail() {
     return Alert.alert(
       "Error",
       "Something went wrong!",
-      [{ onPress: () => router.push("/(root)/(tabs)/home") }],
+      [{ onPress: () => router.push(getRoleRoute(userVar().memberType) as any) }],
       { cancelable: false }
     );
 

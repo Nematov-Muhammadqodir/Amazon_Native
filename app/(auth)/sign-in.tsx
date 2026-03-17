@@ -4,6 +4,7 @@ import InputField from "@/components/InputField";
 import { icons } from "@/constants";
 import { useSocket } from "@/hooks/useSocket";
 import { getToken, login } from "@/libs/auth";
+import { getRoleRoute } from "@/libs/utils/getRoleRoute";
 import { sweetErrorAlert } from "@/types/sweetAlert";
 import { useReactiveVar } from "@apollo/client/react";
 import { Link, router } from "expo-router";
@@ -25,7 +26,7 @@ export default function SignIn() {
     (async () => {
       const token = await getToken();
       if (token && user._id !== "") {
-        router.replace("/(root)/(tabs)/home");
+        router.replace(getRoleRoute(user.memberType) as any);
       }
     })();
   }, []);
@@ -55,8 +56,8 @@ export default function SignIn() {
 
     setLoading(true);
     try {
-      await login(input.nick, input.password);
-      router.replace("/(root)/(tabs)/home");
+      const userData = await login(input.nick, input.password);
+      router.replace(getRoleRoute(userData.memberType) as any);
     } catch (err: any) {
       await sweetErrorAlert(err?.message || "Login failed");
     } finally {
