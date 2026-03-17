@@ -29,6 +29,35 @@ export const SIGN_UP = gql`
   }
 `;
 
+export const LOGIN = gql`
+  mutation Login($input: LoginInput!) {
+    login(input: $input) {
+      _id
+      memberType
+      memberStatus
+      memberAuthType
+      memberPhone
+      memberNick
+      memberFullName
+      memberImage
+      memberAddress
+      memberDesc
+      memberWarnings
+      memberBlocks
+      memberProducts
+      memberRank
+      memberArticles
+      memberPoints
+      memberLikes
+      memberViews
+      deletedAt
+      createdAt
+      updatedAt
+      accessToken
+    }
+  }
+`;
+
 export const UPDATE_MEMBER = gql`
   mutation UpdateMember($input: MemberUpdate!) {
     updateMember(input: $input) {

@@ -1,7 +1,7 @@
 import { client } from "@/apollo/client";
 import { userVar } from "@/apollo/store";
 
-import { SIGN_UP } from "@/apollo/user/mutation";
+import { LOGIN, SIGN_UP } from "@/apollo/user/mutation";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
@@ -90,34 +90,33 @@ export const signUp = async (
    LOGIN
 ================================ */
 
-// export const login = async (
-//   nick: string,
-//   password: string
-// ): Promise<void> => {
-//   try {
-//     const result = await client.mutate({
-//       mutation: LOGIN,
-//       variables: {
-//         input: {
-//           memberNick: nick,
-//           memberPassword: password,
-//         },
-//       },
-//     });
+interface LoginResponse {
+  login: {
+    accessToken: string;
+  };
+}
 
-//     const jwtToken = result?.data?.login?.accessToken;
+export const login = async (nick: string, password: string) => {
+  const result = await client.mutate<LoginResponse>({
+    mutation: LOGIN,
+    variables: {
+      input: {
+        memberNick: nick,
+        memberPassword: password,
+      },
+    },
+  });
 
-//     if (!jwtToken) throw new Error("No token received");
+  const jwtToken = result.data?.login.accessToken;
 
-//     await saveToken(jwtToken);
-//     updateUserInfo(jwtToken);
+  if (!jwtToken) throw new Error("No token received");
 
-//     router.replace("/(root)");
-//   } catch (err) {
-//     console.log("Login error:", err);
-//     throw err;
-//   }
-// };
+  await saveToken(jwtToken);
+
+  const user = updateUserInfo(jwtToken);
+
+  return user;
+};
 
 /* ================================
    UPDATE USER FROM JWT
