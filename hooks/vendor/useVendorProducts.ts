@@ -9,6 +9,7 @@ export function useVendorProducts(input: {
   direction?: string;
   search: {
     productStatus?: string;
+    text?: string;
   };
 }) {
   const { data, loading, error, refetch } = useQuery<any>(GET_VENDOR_PRODUCTS, {

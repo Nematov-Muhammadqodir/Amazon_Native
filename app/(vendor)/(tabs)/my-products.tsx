@@ -1,24 +1,25 @@
 import { userVar } from "@/apollo/store";
-import CustomButton from "@/components/CustomButton";
+import { useFridge } from "@/hooks/vendor/useFridge";
 import { useVendorProducts } from "@/hooks/vendor/useVendorProducts";
 import { logOut } from "@/libs/auth";
 import { ProductStatus } from "@/libs/enums/product.enum";
 import { sweetErrorAlert } from "@/types/sweetAlert";
 import { useReactiveVar } from "@apollo/client/react";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
-  Pressable,
+  Modal,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 const STATUS_FILTERS = ["ALL", ...Object.values(ProductStatus)] as const;
 
@@ -27,6 +28,7 @@ export default function MyProducts() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
   );
+  const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);
 
   const { products, total, loading, refetch, updateProduct } =
@@ -37,8 +39,46 @@ export default function MyProducts() {
       direction: "DESC",
       search: {
         ...(statusFilter ? { productStatus: statusFilter } : {}),
+        ...(searchText ? { text: searchText } : {}),
       },
     });
+
+  const { addFridgeItem } = useFridge({
+    page: 1,
+    limit: 1,
+    search: {},
+  });
+
+  const [fridgeModal, setFridgeModal] = useState<any>(null);
+  const [fridgeAmount, setFridgeAmount] = useState("");
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
+  const handleSendToFridge = async () => {
+    if (!fridgeAmount || Number(fridgeAmount) <= 0) {
+      await sweetErrorAlert("Enter a valid quantity");
+      return;
+    }
+    try {
+      await addFridgeItem({
+        productName: fridgeModal.productName,
+        productCollection: fridgeModal.productCollection,
+        currentStock: Number(fridgeAmount),
+      });
+      Toast.show({
+        type: "success",
+        text1: `${fridgeAmount} units sent to fridge!`,
+      });
+      setFridgeModal(null);
+      setFridgeAmount("");
+    } catch (err: any) {
+      await sweetErrorAlert(err?.message || "Failed to add to fridge");
+    }
+  };
 
   const handleStatusChange = async (
     productId: string,
@@ -69,6 +109,7 @@ export default function MyProducts() {
     const imageUri = item.productImages?.[0]
       ? `${process.env.EXPO_PUBLIC_API_URL}/${item.productImages[0]}`
       : null;
+    console.log("imageUri", imageUri);
 
     return (
       <View className="bg-white rounded-2xl mb-3 p-4 flex-row items-center shadow-sm">
@@ -98,7 +139,9 @@ export default function MyProducts() {
             )}
           </Text>
           <View className="flex-row items-center mt-2 gap-2">
-            <View className={`px-2 py-1 rounded-full ${getStatusColor(item.productStatus)}`}>
+            <View
+              className={`px-2 py-1 rounded-full ${getStatusColor(item.productStatus)}`}
+            >
               <Text className="text-xs font-JakartaSemiBold">
                 {item.productStatus}
               </Text>
@@ -111,20 +154,44 @@ export default function MyProducts() {
 
         <View className="flex-col gap-2">
           {item.productStatus === "ACTIVE" && (
-            <TouchableOpacity
-              onPress={() => handleStatusChange(item._id, ProductStatus.SOLD)}
-              className="bg-orange-50 p-2 rounded-lg"
-            >
-              <MaterialIcons name="sell" size={18} color="#EA580C" />
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                onPress={() => setFridgeModal(item)}
+                className="bg-blue-50 p-2 rounded-lg"
+              >
+                <MaterialCommunityIcons
+                  name="fridge-outline"
+                  size={18}
+                  color="#3B82F6"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleStatusChange(item._id, ProductStatus.SOLD)}
+                className="bg-orange-50 p-2 rounded-lg"
+              >
+                <MaterialIcons name="sell" size={18} color="#EA580C" />
+              </TouchableOpacity>
+            </>
           )}
           {item.productStatus === "SOLD" && (
-            <TouchableOpacity
-              onPress={() => handleStatusChange(item._id, ProductStatus.ACTIVE)}
-              className="bg-green-50 p-2 rounded-lg"
-            >
-              <Ionicons name="refresh" size={18} color="#16A34A" />
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                onPress={() =>
+                  handleStatusChange(item._id, ProductStatus.ACTIVE)
+                }
+                className="bg-green-50 p-2 rounded-lg"
+              >
+                <Ionicons name="refresh" size={18} color="#16A34A" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  handleStatusChange(item._id, ProductStatus.DELETE)
+                }
+                className="bg-red-50 p-2 rounded-lg"
+              >
+                <Ionicons name="trash-outline" size={18} color="#EF4444" />
+              </TouchableOpacity>
+            </>
           )}
         </View>
       </View>
@@ -141,7 +208,7 @@ export default function MyProducts() {
               My Products
             </Text>
             <Text className="text-sm font-Jakarta text-gray-500 mt-1">
-              {total} product{total !== 1 ? "s" : ""} total
+              {products.length} product{products.length !== 1 ? "s" : ""} total
             </Text>
           </View>
           <View className="flex-row gap-2">
@@ -161,6 +228,51 @@ export default function MyProducts() {
         </View>
       </View>
 
+      {/* Quick Navigation */}
+      <View className="px-5 mb-3 flex-row gap-2">
+        <TouchableOpacity
+          onPress={() => router.push("/(vendor)/(tabs)/fridge" as any)}
+          className="flex-1 flex-row items-center justify-center gap-2 bg-white border border-gray-200 py-3 rounded-xl"
+        >
+          <MaterialCommunityIcons
+            name="fridge-outline"
+            size={20}
+            color="#3B82F6"
+          />
+          <Text className="font-JakartaSemiBold text-sm text-gray-700">
+            Cold Storage
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/(vendor)/(tabs)/orders" as any)}
+          className="flex-1 flex-row items-center justify-center gap-2 bg-white border border-gray-200 py-3 rounded-xl"
+        >
+          <Ionicons name="receipt-outline" size={20} color="#E9AB18" />
+          <Text className="font-JakartaSemiBold text-sm text-gray-700">
+            Orders
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Search Bar */}
+      <View className="px-5 mb-3">
+        <View className="flex-row items-center bg-white rounded-full px-4 py-2 border border-gray-200">
+          <Ionicons name="search" size={20} color="#9CA3AF" />
+          <TextInput
+            className="flex-1 ml-2 font-Jakarta text-[15px]"
+            placeholder="Search by product name..."
+            placeholderTextColor="#9CA3AF"
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchText("")}>
+              <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       {/* Status Filter */}
       <View className="px-5 mb-3">
         <FlatList
@@ -177,7 +289,9 @@ export default function MyProducts() {
                   setStatusFilter(item === "ALL" ? undefined : item)
                 }
                 className={`mr-2 px-4 py-2 rounded-full ${
-                  isSelected ? "bg-[#2D4D23]" : "bg-white border border-gray-200"
+                  isSelected
+                    ? "bg-[#2D4D23]"
+                    : "bg-white border border-gray-200"
                 }`}
               >
                 <Text
@@ -217,6 +331,61 @@ export default function MyProducts() {
           }
         />
       )}
+
+      {/* Send to Fridge Modal */}
+      <Modal visible={!!fridgeModal} animationType="fade" transparent>
+        <View className="flex-1 bg-black/50 justify-center px-8">
+          <View className="bg-white rounded-3xl p-6">
+            <View className="flex-row items-center gap-2 mb-1">
+              <MaterialCommunityIcons
+                name="fridge-outline"
+                size={22}
+                color="#2D4D23"
+              />
+              <Text className="text-lg font-JakartaExtraBold text-[#2D4D23]">
+                Send to Fridge
+              </Text>
+            </View>
+            <Text className="font-Jakarta text-gray-500 mb-4">
+              How many "{fridgeModal?.productName}" to store in cold storage?
+            </Text>
+            <TextInput
+              className="bg-neutral-100 rounded-full p-4 font-JakartaBold text-center text-xl mb-4"
+              placeholder="0"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="numeric"
+              value={fridgeAmount}
+              onChangeText={setFridgeAmount}
+              autoFocus
+            />
+            <Text className="text-center text-xs text-gray-400 font-Jakarta mb-4">
+              If this product already exists in your fridge, the stock will be
+              added automatically.
+            </Text>
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={() => {
+                  setFridgeModal(null);
+                  setFridgeAmount("");
+                }}
+                className="flex-1 py-3 rounded-full border border-gray-200 items-center"
+              >
+                <Text className="font-JakartaSemiBold text-gray-600">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSendToFridge}
+                className="flex-1 py-3 rounded-full bg-[#2D4D23] items-center"
+              >
+                <Text className="font-JakartaSemiBold text-white">
+                  Send
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -1,4 +1,4 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 
@@ -72,12 +72,12 @@ export default function VendorTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="orders"
+        name="bills"
         options={{
-          title: "Orders",
+          title: "Bills",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="receipt" />
+            <TabIcon focused={focused} icon="document-text" />
           ),
         }}
       />
@@ -89,6 +89,21 @@ export default function VendorTabLayout() {
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon="chatbubble-ellipses" />
           ),
+        }}
+      />
+      {/* Hidden tabs - accessible via buttons on my-products page */}
+      <Tabs.Screen
+        name="fridge"
+        options={{
+          headerShown: false,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="orders"
+        options={{
+          headerShown: false,
+          href: null,
         }}
       />
     </Tabs>
