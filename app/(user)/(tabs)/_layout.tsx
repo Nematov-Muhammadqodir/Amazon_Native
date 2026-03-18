@@ -1,3 +1,7 @@
+import { userVar } from "@/apollo/store";
+import { useSocket } from "@/hooks/useSocket";
+import { useSocketNotifications } from "@/hooks/useSocketNotifications";
+import { useReactiveVar } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
@@ -30,6 +34,10 @@ function TabIcon({ icon, focused }: TabIconProps) {
 }
 
 export default function UserTabLayout() {
+  const user = useReactiveVar(userVar);
+  const { socket } = useSocket(user?._id);
+  useSocketNotifications(socket);
+
   return (
     <Tabs
       screenOptions={{

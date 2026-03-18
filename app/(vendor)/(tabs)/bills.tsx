@@ -1,6 +1,6 @@
 import { userVar } from "@/apollo/store";
 import { useBills } from "@/hooks/vendor/useBills";
-import { useVendorProducts } from "@/hooks/vendor/useVendorProducts";
+import { useFridge } from "@/hooks/vendor/useFridge";
 import { generateBillHtml } from "@/libs/utils/generateBillPdf";
 import { sweetErrorAlert } from "@/types/sweetAlert";
 import { useReactiveVar } from "@apollo/client/react";
@@ -126,13 +126,13 @@ export default function Bills() {
     },
   });
 
-  // Fetch vendor's active products for the product picker
-  const { products: activeProducts } = useVendorProducts({
+  // Fetch fridge items for the product picker
+  const { fridgeItems: activeProducts, refetch: refetchFridge } = useFridge({
     page: 1,
     limit: 100,
-    sort: "createdAt",
-    direction: "DESC",
-    search: { productStatus: "ACTIVE" },
+    sort: "productName",
+    direction: "ASC",
+    search: { itemStatus: "ACTIVE" },
   });
 
   useFocusEffect(
@@ -204,13 +204,13 @@ export default function Bills() {
     ]);
   };
 
-  /** Select a product from the dropdown — auto-fill name & price */
+  /** Select a product from the dropdown — auto-fill name, show stock info */
   const selectProduct = (index: number, product: any) => {
     const updated = [...items];
     updated[index] = {
       ...updated[index],
       productName: product.productName,
-      unitPrice: String(product.productPrice),
+      unit: product.unit || "kg",
       showDropdown: false,
     };
     setItems(updated);
@@ -259,6 +259,7 @@ export default function Bills() {
       setShowCreate(false);
       resetForm();
       refetch();
+      refetchFridge();
 
       // Offer to share immediately
       Alert.alert("Bill Saved", "Share this bill now?", [
@@ -709,7 +710,7 @@ export default function Bills() {
                                     {product.productName}
                                   </Text>
                                   <Text className="font-JakartaBold text-xs text-[#2D4D23] ml-2">
-                                    ₩{product.productPrice?.toLocaleString()}
+                                    {product.currentStock} {product.unit}
                                   </Text>
                                 </TouchableOpacity>
                               )

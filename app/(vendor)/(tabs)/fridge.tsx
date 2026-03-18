@@ -274,12 +274,11 @@ export default function Fridge() {
               {total} item{total !== 1 ? "s" : ""} tracked
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => setShowAddModal(true)}
-            className="bg-[#2D4D23] p-3 rounded-full"
-          >
-            <Ionicons name="add" size={22} color="white" />
-          </TouchableOpacity>
+          <View className="bg-gray-100 px-3 py-2 rounded-full">
+            <Text className="text-xs font-Jakarta text-gray-500">
+              Auto-filled from purchases
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -364,117 +363,6 @@ export default function Fridge() {
           }
         />
       )}
-
-      {/* ===== ADD ITEM MODAL ===== */}
-      <Modal visible={showAddModal} animationType="slide" transparent>
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl p-5 max-h-[90%]">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-JakartaExtraBold text-[#2D4D23]">
-                Add to Fridge
-              </Text>
-              <TouchableOpacity onPress={() => setShowAddModal(false)}>
-                <Ionicons name="close" size={24} color="#666" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView keyboardShouldPersistTaps="handled">
-              <Text className="font-JakartaSemiBold mb-2">Product Name *</Text>
-              <TextInput
-                className="bg-neutral-100 rounded-full p-4 font-Jakarta mb-3"
-                placeholder="e.g. Korean Strawberries"
-                placeholderTextColor="#9CA3AF"
-                value={addForm.productName}
-                onChangeText={(v) =>
-                  setAddForm({ ...addForm, productName: v })
-                }
-              />
-
-              <Text className="font-JakartaSemiBold mb-2">Category *</Text>
-              <View className="flex-row flex-wrap gap-2 mb-3">
-                {COLLECTIONS.map((col) => {
-                  const isSelected = addForm.productCollection === col;
-                  return (
-                    <TouchableOpacity
-                      key={col}
-                      onPress={() =>
-                        setAddForm({ ...addForm, productCollection: col })
-                      }
-                      className={`px-3 py-2 rounded-full ${
-                        isSelected
-                          ? "bg-[#2D4D23]"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      <Text
-                        className={`text-xs font-JakartaSemiBold ${
-                          isSelected ? "text-white" : "text-gray-600"
-                        }`}
-                      >
-                        {col.replace(/_/g, " ")}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <Text className="font-JakartaSemiBold mb-2">Quantity *</Text>
-              <TextInput
-                className="bg-neutral-100 rounded-full p-4 font-Jakarta mb-3"
-                placeholder="Amount"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="numeric"
-                value={addForm.currentStock}
-                onChangeText={(v) =>
-                  setAddForm({ ...addForm, currentStock: v })
-                }
-              />
-
-              <Text className="font-JakartaSemiBold mb-2">Unit</Text>
-              <View className="flex-row flex-wrap gap-2 mb-3">
-                {UNITS.map((u) => {
-                  const isSelected = addForm.unit === u;
-                  return (
-                    <TouchableOpacity
-                      key={u}
-                      onPress={() => setAddForm({ ...addForm, unit: u })}
-                      className={`px-3 py-2 rounded-full ${
-                        isSelected ? "bg-[#E9AB18]" : "bg-gray-100"
-                      }`}
-                    >
-                      <Text
-                        className={`text-xs font-JakartaSemiBold ${
-                          isSelected ? "text-white" : "text-gray-600"
-                        }`}
-                      >
-                        {u}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <Text className="font-JakartaSemiBold mb-2">Memo</Text>
-              <TextInput
-                className="bg-neutral-100 rounded-2xl p-4 font-Jakarta mb-4"
-                placeholder="Optional note"
-                placeholderTextColor="#9CA3AF"
-                value={addForm.memo}
-                onChangeText={(v) => setAddForm({ ...addForm, memo: v })}
-              />
-
-              <TouchableOpacity
-                onPress={handleAdd}
-                className="bg-[#2D4D23] py-4 rounded-full items-center"
-              >
-                <Text className="text-white font-JakartaBold text-base">
-                  Add to Fridge
-                </Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
 
       {/* ===== RESTOCK MODAL ===== */}
       <Modal visible={showRestockModal} animationType="fade" transparent>

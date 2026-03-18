@@ -1,3 +1,7 @@
+import { userVar } from "@/apollo/store";
+import { useSocket } from "@/hooks/useSocket";
+import { useSocketNotifications } from "@/hooks/useSocketNotifications";
+import { useReactiveVar } from "@apollo/client/react";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
@@ -30,6 +34,10 @@ function TabIcon({ icon, focused }: TabIconProps) {
 }
 
 export default function VendorTabLayout() {
+  const user = useReactiveVar(userVar);
+  const { socket } = useSocket(user?._id);
+  useSocketNotifications(socket);
+
   return (
     <Tabs
       screenOptions={{
@@ -62,12 +70,12 @@ export default function VendorTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="create-product"
+        name="purchases"
         options={{
-          title: "Add Product",
+          title: "Purchases",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon="add-circle" />
+            <TabIcon focused={focused} icon="cart" />
           ),
         }}
       />
@@ -82,6 +90,16 @@ export default function VendorTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="loans"
+        options={{
+          title: "Loans",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="swap-horizontal" />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="chat"
         options={{
           title: "Chat",
@@ -91,21 +109,12 @@ export default function VendorTabLayout() {
           ),
         }}
       />
-      {/* Hidden tabs - accessible via buttons on my-products page */}
-      <Tabs.Screen
-        name="fridge"
-        options={{
-          headerShown: false,
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="orders"
-        options={{
-          headerShown: false,
-          href: null,
-        }}
-      />
+      {/* Hidden tabs */}
+      <Tabs.Screen name="create-product" options={{ headerShown: false, href: null }} />
+      <Tabs.Screen name="fridge" options={{ headerShown: false, href: null }} />
+      <Tabs.Screen name="orders" options={{ headerShown: false, href: null }} />
+      <Tabs.Screen name="browse-vendors" options={{ headerShown: false, href: null }} />
+      <Tabs.Screen name="vendor-fridge" options={{ headerShown: false, href: null }} />
     </Tabs>
   );
 }

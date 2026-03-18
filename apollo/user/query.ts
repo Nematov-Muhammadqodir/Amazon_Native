@@ -220,6 +220,32 @@ export const GET_NOTICES = gql`
   }
 `;
 
+export const GET_VENDORS = gql`
+  query GetVendors($input: VendorsInquiry!) {
+    getVendors(input: $input) {
+      list {
+        _id
+        memberType
+        memberStatus
+        memberPhone
+        memberNick
+        memberFullName
+        memberImage
+        memberAddress
+        memberDesc
+        memberProducts
+        memberRank
+        memberLikes
+        memberViews
+        createdAt
+      }
+      metaCounter {
+        total
+      }
+    }
+  }
+`;
+
 export const GET_ALL_USERS = gql`
   query GetAllUsers {
     getAllUsers {
