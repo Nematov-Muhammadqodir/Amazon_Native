@@ -1,11 +1,11 @@
-import { useQuery, useMutation } from "@apollo/client/react";
-import { GET_FRIDGE_ITEMS } from "@/apollo/vendor/fridge-query";
 import {
   ADD_FRIDGE_ITEM,
+  DELETE_FRIDGE_ITEM,
   RESTOCK_FRIDGE_ITEM,
   UPDATE_FRIDGE_ITEM,
-  DELETE_FRIDGE_ITEM,
 } from "@/apollo/vendor/fridge-mutation";
+import { GET_FRIDGE_ITEMS } from "@/apollo/vendor/fridge-query";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 export function useFridge(input: {
   page: number;

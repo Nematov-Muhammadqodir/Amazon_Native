@@ -1,8 +1,10 @@
+import { selectedVendorVar } from "@/apollo/store";
 import { useCreateBorrowRequest } from "@/hooks/vendor/useBorrowRequests";
 import { useVendorFridge } from "@/hooks/vendor/useVendorFridge";
 import { sweetErrorAlert } from "@/types/sweetAlert";
+import { useReactiveVar } from "@apollo/client/react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -17,10 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
 export default function VendorFridgeView() {
-  const { vendorId, vendorName } = useLocalSearchParams<{
-    vendorId: string;
-    vendorName: string;
-  }>();
+  const { vendorId, vendorName } = useReactiveVar(selectedVendorVar);
 
   const { fridgeItems, loading } = useVendorFridge(vendorId || "", {
     page: 1,

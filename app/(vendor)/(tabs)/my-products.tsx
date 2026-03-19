@@ -1,8 +1,6 @@
-import { userVar } from "@/apollo/store";
 import { useFridge } from "@/hooks/vendor/useFridge";
 import { logOut } from "@/libs/auth";
 import { FridgeItemStatus } from "@/libs/enums/fridge.enum";
-import { useReactiveVar } from "@apollo/client/react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -19,7 +17,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const STATUS_FILTERS = ["ALL", "ACTIVE", "FINISHED"] as const;
 
 export default function MyProducts() {
-  const user = useReactiveVar(userVar);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
   );

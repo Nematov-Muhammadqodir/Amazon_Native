@@ -41,13 +41,9 @@ export default function Chat() {
   const isUserOnline = isOnline === "true";
   const socket = getSocket();
   const roomIdString = Array.isArray(roomId) ? roomId[0] : roomId;
-  console.log("roomId", roomId);
 
-  const {
-    getChatRoomData,
-    getMessagesData,
-    getMessagesRefetch,
-  } = useChatRoom(roomIdString);
+  const { getChatRoomData, getMessagesData, getMessagesRefetch } =
+    useChatRoom(roomIdString);
 
   const otherUser = getChatRoomData?.getChatRoom.participants.find(
     (participant) => participant._id !== loggedInUser?._id
@@ -62,9 +58,7 @@ export default function Chat() {
   });
 
   const handleSendMessage = () => {
-    console.log("messageInput", messageInput);
     if (!messageInput.text && !messageInput.image) return;
-
     socket?.emit("sendMessage", {
       chatRoomId: roomIdString,
       senderId: loggedInUser._id,
@@ -72,12 +66,7 @@ export default function Chat() {
       imageUrl: messageInput.image,
       type: messageInput.type,
     });
-
-    setMessageInput({
-      text: "",
-      image: "",
-      type: "text",
-    });
+    setMessageInput({ text: "", image: "", type: "text" });
   };
 
   useEffect(() => {
@@ -88,23 +77,18 @@ export default function Chat() {
 
   useEffect(() => {
     if (!roomIdString) return;
-
-    // fetch messages from server again
     getMessagesRefetch?.();
   }, [roomIdString]);
 
   useEffect(() => {
     if (!roomId) return;
-    console.log("Joining room:", roomId);
     socket?.emit("joinRoom", roomIdString);
   }, [roomId]);
 
   useEffect(() => {
     socket?.on("newMessage", (incomingMessage: MessageType) => {
       setMessages((prev) => {
-        if (prev.some((m) => m._id === incomingMessage._id)) {
-          return prev; // already added
-        }
+        if (prev.some((m) => m._id === incomingMessage._id)) return prev;
         return [incomingMessage, ...prev];
       });
     });
@@ -114,38 +98,22 @@ export default function Chat() {
   }, []);
 
   const uploadImage = async (image: any) => {
-    console.log("Uploading image:", image);
     try {
       const token = await getToken();
-
       const formData = new FormData();
-
       formData.append(
         "operations",
         JSON.stringify({
-          query: `mutation ImageUploader($file: Upload!, $target: String!) {
-            imageUploader(file: $file, target: $target)
-          }`,
-          variables: {
-            file: null,
-            target: "chat",
-          },
+          query: `mutation ImageUploader($file: Upload!, $target: String!) { imageUploader(file: $file, target: $target) }`,
+          variables: { file: null, target: "chat" },
         })
       );
-
-      formData.append(
-        "map",
-        JSON.stringify({
-          "0": ["variables.file"],
-        })
-      );
-
+      formData.append("map", JSON.stringify({ "0": ["variables.file"] }));
       formData.append("0", {
         uri: image.uri,
         name: image.fileName || "photo.jpg",
         type: image.mimeType || "image/jpeg",
       } as any);
-
       const response = await axios.post(
         process.env.EXPO_PUBLIC_API_GRAPHQL_URL!,
         formData,
@@ -157,257 +125,250 @@ export default function Chat() {
           },
         }
       );
-
-      const uploadedImage = response.data.data.imageUploader;
-
       setMessageInput((prev) => ({
         ...prev,
-        image: uploadedImage,
+        image: response.data.data.imageUploader,
       }));
     } catch (err) {
       console.log("Upload image error:", err);
     }
   };
 
-  const takePhoto = async () => {
-    try {
-      const permission = await ImagePicker.requestCameraPermissionsAsync();
-
-      if (!permission.granted) {
-        alert("Permission to access camera is required!");
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        quality: 0.7,
-      });
-
-      if (result.canceled) return;
-
-      const image = result.assets[0];
-      console.log("camera image", image);
-
-      uploadImage(image);
-    } catch (err) {
-      console.log("Camera error:", err);
-    }
-  };
-
   const selectImageSource = () => {
-    Alert.alert(
-      "Select Image",
-      "Choose image source",
-      [
-        {
-          text: "Camera",
-          onPress: takePhoto,
+    Alert.alert("Send Photo", "Choose source", [
+      {
+        text: "Camera",
+        onPress: async () => {
+          const p = await ImagePicker.requestCameraPermissionsAsync();
+          if (!p.granted) return alert("Camera permission required!");
+          const r = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            quality: 0.7,
+          });
+          if (!r.canceled) uploadImage(r.assets[0]);
         },
-        {
-          text: "Gallery",
-          onPress: pickImage,
+      },
+      {
+        text: "Gallery",
+        onPress: async () => {
+          const p = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!p.granted) return alert("Gallery permission required!");
+          const r = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ["images"] as any,
+            allowsEditing: true,
+            quality: 0.7,
+          });
+          if (!r.canceled) uploadImage(r.assets[0]);
         },
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-      ],
-      { cancelable: true }
-    );
+      },
+      { text: "Cancel", style: "cancel" },
+    ]);
   };
 
-  const pickImage = async () => {
-    try {
-      const permission =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!permission.granted) {
-        alert("Permission to access gallery is required!");
-        return;
-      }
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"] as any,
-        allowsEditing: true,
-        quality: 0.7,
-      });
-
-      if (result.canceled) return;
-
-      const image = result.assets[0];
-      console.log("image", image);
-
-      uploadImage(image);
-    } catch (err) {
-      console.log("Image picker error:", err);
-    }
+  const formatTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
-  const imgPath = `${REACT_APP_API_URL}/${user?.memberImage}`;
+  const imgPath = user?.memberImage
+    ? `${REACT_APP_API_URL}/${user.memberImage}`
+    : null;
+
   return (
-    <SafeAreaView className="flex-1 bg-[#BCD38B]">
+    <SafeAreaView className="flex-1 bg-[#EFEDDE]">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
         keyboardVerticalOffset={10}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="justify-between h-full">
-            <View className="flex flex-row justify-between px-5 items-center mt-2">
-              <Pressable
-                className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md"
-                onPress={() => router.back()}
-              >
-                <Ionicons
-                  name="chevron-back"
-                  size={30}
-                  color="black"
-                  className="pr-1"
-                />
+          <View className="flex-1">
+            {/* Telegram-style header */}
+            <View className="flex-row items-center px-4 py-2 bg-white border-b border-gray-100">
+              <Pressable onPress={() => router.back()} className="mr-3">
+                <Ionicons name="arrow-back" size={24} color="#000" />
               </Pressable>
-              <View className="items-center rounded-full px-5 py-1 bg-[#D7E6B5] shadow-md w-auto h-[50px] justify-center">
-                <Text className="font-bold text-[14px] font-JakartaExtraBold">
+
+              {imgPath ? (
+                <Image
+                  source={{ uri: imgPath }}
+                  className="w-[40px] h-[40px] rounded-full"
+                />
+              ) : (
+                <Image
+                  source={images.defaultUser}
+                  className="w-[40px] h-[40px] rounded-full"
+                />
+              )}
+
+              <View className="ml-3 flex-1">
+                <Text className="font-JakartaBold text-[16px] text-gray-900">
                   {user?.memberNick}
                 </Text>
-                <Text className="font-JakartaMedium color-gray-700 text-[12px]">
-                  {isUserOnline ? "Online" : "last seen recently"}
+                <Text
+                  className={`text-[12px] font-Jakarta ${
+                    isUserOnline ? "text-[#4DCA5B]" : "text-gray-400"
+                  }`}
+                >
+                  {isUserOnline ? "online" : "last seen recently"}
                 </Text>
               </View>
-              <View className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md">
-                {user?.memberImage ? (
-                  <Image
-                    source={{ uri: imgPath }}
-                    className="w-[48px] h-[48px] rounded-full"
-                  />
-                ) : (
-                  <Image
-                    source={images.defaultUser}
-                    className="w-[48px] h-[48px] rounded-full"
-                  />
-                )}
-              </View>
+
+              <Pressable className="p-2">
+                <Ionicons name="ellipsis-vertical" size={20} color="#000" />
+              </Pressable>
             </View>
 
-            <View className="flex-1 px-4 mt-3">
-              <FlatList
-                data={messages}
-                inverted
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => {
-                  const isMe = item.senderId === loggedInUser._id;
-                  console.log("messages", item);
-                  return (
+            {/* Telegram-style messages */}
+            <FlatList
+              data={messages}
+              inverted
+              keyExtractor={(item) => item._id}
+              contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 8 }}
+              renderItem={({ item, index }) => {
+                const isMe = item.senderId === loggedInUser._id;
+                const nextMsg = messages[index + 1];
+                const showTail =
+                  !nextMsg || nextMsg.senderId !== item.senderId;
+
+                return (
+                  <View
+                    className={`mb-1 flex-row ${
+                      isMe ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    {/* Time on left for my messages */}
+                    {isMe && (
+                      <Text className="text-[10px] text-gray-400 font-Jakarta self-end mb-1 mr-1">
+                        {formatTime(item.createdAt)}
+                      </Text>
+                    )}
+
                     <View
-                      className={`mb-3 max-w-[75%] ${
-                        isMe ? "self-end" : "self-start"
+                      style={{ maxWidth: "75%" }}
+                      className={`rounded-2xl overflow-hidden ${
+                        isMe
+                          ? `bg-[#EFFDDE] ${showTail ? "rounded-tr-sm" : ""}`
+                          : `bg-white ${showTail ? "rounded-tl-sm" : ""}`
                       }`}
                     >
-                      <View
-                        className={`rounded-2xl overflow-hidden ${
-                          isMe
-                            ? "bg-[#D7E6B5] rounded-br-none"
-                            : "bg-white rounded-bl-none"
-                        }`}
-                        style={{
-                          shadowColor: "#000",
-                          shadowOpacity: 0.08,
-                          shadowRadius: 4,
-                          elevation: 2,
-                        }}
-                      >
-                        {/* IMAGE MESSAGE */}
-                        {item.imageUrl ? (
-                          <Pressable
-                            onPress={() =>
-                              setSelectedImage(getImageUrl(item.imageUrl))
-                            }
-                          >
-                            <Image
-                              source={{
-                                uri: getImageUrl(item.imageUrl),
-                              }}
-                              style={{
-                                width: 220,
-                                height: 220,
-                                borderRadius: 14,
-                              }}
-                              resizeMode="cover"
-                            />
-                          </Pressable>
-                        ) : null}
+                      {/* Image */}
+                      {item.imageUrl ? (
+                        <Pressable
+                          onPress={() =>
+                            setSelectedImage(getImageUrl(item.imageUrl))
+                          }
+                        >
+                          <Image
+                            source={{ uri: getImageUrl(item.imageUrl) }}
+                            style={{ width: 240, height: 240 }}
+                            className="rounded-2xl"
+                            resizeMode="cover"
+                          />
+                        </Pressable>
+                      ) : null}
 
-                        {/* TEXT MESSAGE */}
-                        {item.text ? (
-                          <Text className="px-4 py-2 text-[14px] text-black">
-                            {item.text}
-                          </Text>
-                        ) : null}
-                      </View>
+                      {/* Text */}
+                      {item.text ? (
+                        <Text
+                          className="px-3 py-2 text-[15px] text-gray-900"
+                          style={{ fontFamily: "Jakarta" }}
+                        >
+                          {item.text}
+                        </Text>
+                      ) : null}
                     </View>
-                  );
-                }}
-                initialNumToRender={15}
-                maxToRenderPerBatch={10}
-                windowSize={10}
-                removeClippedSubviews
-              />
-            </View>
-            <View className="flex flex-row justify-between px-5 items-center mt-2 gap-3">
-              <View className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md">
-                <Pressable onPress={selectImageSource}>
-                  <Ionicons name="attach" size={30} color="black" />
-                </Pressable>
+
+                    {/* Time on right for their messages */}
+                    {!isMe && (
+                      <Text className="text-[10px] text-gray-400 font-Jakarta self-end mb-1 ml-1">
+                        {formatTime(item.createdAt)}
+                      </Text>
+                    )}
+                  </View>
+                );
+              }}
+              initialNumToRender={20}
+              maxToRenderPerBatch={15}
+              windowSize={10}
+            />
+
+            {/* Image preview bar */}
+            {messageInput.image ? (
+              <View className="px-4 py-2 bg-white border-t border-gray-100">
+                <View className="flex-row items-center">
+                  <Image
+                    source={{ uri: getImageUrl(messageInput.image) }}
+                    className="w-16 h-16 rounded-xl"
+                    resizeMode="cover"
+                  />
+                  <Text className="flex-1 ml-3 font-Jakarta text-sm text-gray-500">
+                    Photo attached
+                  </Text>
+                  <Pressable
+                    onPress={() =>
+                      setMessageInput((p) => ({ ...p, image: "" }))
+                    }
+                  >
+                    <Ionicons name="close-circle" size={24} color="#999" />
+                  </Pressable>
+                </View>
               </View>
-              <View className="rounded-full px-5 bg-[#D7E6B5] shadow-md h-[50px] flex-1 justify-center">
+            ) : null}
+
+            {/* Telegram-style input bar */}
+            <View className="flex-row items-end px-3 py-2 bg-white border-t border-gray-100">
+              <Pressable
+                onPress={selectImageSource}
+                className="w-[40px] h-[40px] rounded-full items-center justify-center"
+              >
+                <Ionicons name="attach" size={24} color="#8E8E93" />
+              </Pressable>
+
+              <View className="flex-1 mx-2 bg-[#F0F1F5] rounded-2xl px-4 py-2 max-h-[120px]">
                 <TextInput
                   placeholder="Message"
-                  className="w-full text-[14px]"
-                  placeholderTextColor="#6b7280"
+                  className="text-[15px] text-gray-900"
+                  style={{ fontFamily: "Jakarta" }}
+                  placeholderTextColor="#8E8E93"
                   multiline
                   value={messageInput.text}
                   onChangeText={(text) =>
-                    setMessageInput((prev) => ({
-                      ...prev,
-                      text,
-                      type: "text",
-                    }))
+                    setMessageInput((prev) => ({ ...prev, text, type: "text" }))
                   }
                 />
               </View>
-              <View className="w-[50px] h-[50px] rounded-full items-center justify-center bg-[#D7E6B5] shadow-md">
-                {messageInput.text?.trim().length || messageInput.image ? (
-                  <Pressable onPress={handleSendMessage}>
-                    <Ionicons name="send" size={26} color="black" />
-                  </Pressable>
-                ) : (
-                  <Pressable>
-                    <Ionicons name="mic" size={30} color="black" />
-                  </Pressable>
-                )}
-              </View>
+
+              {messageInput.text?.trim() || messageInput.image ? (
+                <Pressable
+                  onPress={handleSendMessage}
+                  className="w-[40px] h-[40px] rounded-full bg-[#2AABEE] items-center justify-center"
+                >
+                  <Ionicons name="send" size={18} color="white" />
+                </Pressable>
+              ) : (
+                <Pressable className="w-[40px] h-[40px] rounded-full items-center justify-center">
+                  <Ionicons name="mic" size={24} color="#8E8E93" />
+                </Pressable>
+              )}
             </View>
+
+            {/* Fullscreen image modal */}
             <Modal visible={!!selectedImage} transparent animationType="fade">
               <View className="flex-1 bg-black justify-center items-center">
-                {/* Close Button */}
                 <Pressable
                   onPress={() => setSelectedImage(null)}
-                  style={{
-                    position: "absolute",
-                    top: 60,
-                    right: 20,
-                    zIndex: 10,
-                  }}
+                  style={{ position: "absolute", top: 60, right: 20, zIndex: 10 }}
                 >
                   <Ionicons name="close" size={32} color="white" />
                 </Pressable>
-
-                {/* Fullscreen Image */}
                 {selectedImage && (
                   <Image
                     source={{ uri: selectedImage }}
-                    style={{
-                      width: "100%",
-                      height: "80%",
-                    }}
+                    style={{ width: "100%", height: "80%" }}
                     resizeMode="contain"
                   />
                 )}

@@ -1,4 +1,4 @@
-import { userVar } from "@/apollo/store";
+import { selectedVendorVar, userVar } from "@/apollo/store";
 import { GET_VENDORS } from "@/apollo/user/query";
 import { useReactiveVar } from "@apollo/client/react";
 import { useQuery } from "@apollo/client/react";
@@ -44,12 +44,10 @@ export default function BrowseVendors() {
 
     return (
       <TouchableOpacity
-        onPress={() =>
-          router.push({
-            pathname: "/(vendor)/(tabs)/vendor-fridge" as any,
-            params: { vendorId: item._id, vendorName: item.memberNick },
-          })
-        }
+        onPress={() => {
+          selectedVendorVar({ vendorId: item._id, vendorName: item.memberNick });
+          router.push("/(vendor)/(tabs)/vendor-fridge" as any);
+        }}
         className="bg-white rounded-2xl mb-3 p-4 flex-row items-center shadow-sm"
         activeOpacity={0.7}
       >

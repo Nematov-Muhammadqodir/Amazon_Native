@@ -8,13 +8,21 @@ import { useReactiveVar } from "@apollo/client/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function VendorChat() {
   const loggedInUser = useReactiveVar(userVar);
   const { socket } = useSocket(loggedInUser._id);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
 
   const { getUsersData } = useUsers();
   const users = useMemo(() => {
@@ -23,6 +31,13 @@ export default function VendorChat() {
       (user: Member) => user._id !== loggedInUser._id
     );
   }, [getUsersData, loggedInUser._id]);
+
+  const filtered = useMemo(() => {
+    if (!search) return users;
+    return users.filter((u: Member) =>
+      u.memberNick?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [users, search]);
 
   const { getOrCreateRoom } = useGetOrCreateRoom();
 
@@ -50,36 +65,60 @@ export default function VendorChat() {
     const handleOnlineUsers = (users: string[]) => setOnlineUsers(users);
     socket.on("onlineUsers", handleOnlineUsers);
     socket.emit("getOnlineUsers");
-    return () => {
-      socket.off("onlineUsers", handleOnlineUsers);
-    };
+    return () => { socket.off("onlineUsers", handleOnlineUsers); };
   }, [socket]);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F5F0E1]">
-      <View className="px-5 pt-6 pb-3">
-        <Text className="text-2xl font-JakartaExtraBold text-[#2D4D23]">
+    <SafeAreaView className="flex-1 bg-white">
+      {/* Telegram-style header */}
+      <View className="px-5 pt-3 pb-2 border-b border-gray-100">
+        <Text className="text-2xl font-JakartaExtraBold text-gray-900">
           Messages
         </Text>
       </View>
-      <ScrollView className="px-5 mb-[90px]">
-        {users?.map((user: Member) => (
-          <Pressable key={user._id} onPress={() => openChat(user._id)}>
-            <UserCard
-              user={user}
-              isOnline={onlineUsers.includes(user._id)}
-            />
+
+      {/* Telegram-style search */}
+      <View className="px-5 py-2 bg-white">
+        <View className="flex-row items-center bg-[#F0F1F5] rounded-xl px-3 py-2">
+          <Ionicons name="search" size={18} color="#8E8E93" />
+          <TextInput
+            className="flex-1 ml-2 font-Jakarta text-[15px] text-gray-900"
+            placeholder="Search"
+            placeholderTextColor="#8E8E93"
+            value={search}
+            onChangeText={setSearch}
+          />
+          {search.length > 0 && (
+            <TouchableOpacity onPress={() => setSearch("")}>
+              <Ionicons name="close-circle" size={18} color="#8E8E93" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Chat list */}
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => openChat(item._id)}
+            className="px-4"
+            android_ripple={{ color: "#f0f0f0" }}
+          >
+            <UserCard user={item} isOnline={onlineUsers.includes(item._id)} />
           </Pressable>
-        ))}
-        {users.length === 0 && (
+        )}
+        ListEmptyComponent={
           <View className="items-center mt-20">
             <Ionicons name="chatbubbles-outline" size={60} color="#ccc" />
             <Text className="font-JakartaBold text-lg text-gray-400 mt-4">
               No conversations yet
             </Text>
           </View>
-        )}
-      </ScrollView>
+        }
+      />
     </SafeAreaView>
   );
 }

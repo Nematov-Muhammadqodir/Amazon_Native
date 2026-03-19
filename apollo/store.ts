@@ -24,5 +24,10 @@ export const userVar = makeVar<CustomJwtPayload>({
   memberBlocks: 0,
 });
 
+export const selectedVendorVar = makeVar<{
+  vendorId: string;
+  vendorName: string;
+}>({ vendorId: "", vendorName: "" });
+
 //@ts-ignore
 export const socketVar = makeVar<WebSocket>();
