@@ -1,3 +1,4 @@
+import { NotificationType } from "@/libs/enums/notice.enum";
 import { useEffect } from "react";
 import Toast from "react-native-toast-message";
 import { Socket } from "socket.io-client";
@@ -72,15 +73,15 @@ export function useSocketNotifications(
       const type = data?.notificationType;
 
       switch (type) {
-        case "SEND_MESSAGE":
+        case NotificationType.SEND_MESSAGE:
           Toast.show({
             type: "info",
-            text1: `New Message from ${data.senderName}`,
+            text1: `New Message`,
             text2: message,
             visibilityTime: 3000,
           });
           break;
-        case "SUBSCRIBED":
+        case NotificationType.SUBSCRIBED:
           Toast.show({
             type: "success",
             text1: "New Follower",
@@ -88,7 +89,7 @@ export function useSocketNotifications(
             visibilityTime: 3000,
           });
           break;
-        case "UNSUBSCRIBED":
+        case NotificationType.UNSUBSCRIBED:
           Toast.show({
             type: "info",
             text1: "Unfollowed",
@@ -96,7 +97,7 @@ export function useSocketNotifications(
             visibilityTime: 3000,
           });
           break;
-        case "PRODUCT_SOLD":
+        case NotificationType.PRODUCT_SOLD:
           Toast.show({
             type: "success",
             text1: "Product Sold!",
@@ -104,7 +105,7 @@ export function useSocketNotifications(
             visibilityTime: 4000,
           });
           break;
-        case "PRODUCT_DELETED":
+        case NotificationType.PRODUCT_DELETED:
           Toast.show({
             type: "error",
             text1: "Product Deleted",
