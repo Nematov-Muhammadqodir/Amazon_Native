@@ -165,7 +165,7 @@ export default function Chat() {
     ]);
   };
 
-  const formatTime = (dateStr: string) => {
+  const formatTime = (dateStr: string | Date) => {
     const d = new Date(dateStr);
     return d.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
@@ -231,8 +231,7 @@ export default function Chat() {
               renderItem={({ item, index }) => {
                 const isMe = item.senderId === loggedInUser._id;
                 const nextMsg = messages[index + 1];
-                const showTail =
-                  !nextMsg || nextMsg.senderId !== item.senderId;
+                const showTail = !nextMsg || nextMsg.senderId !== item.senderId;
 
                 return (
                   <View
@@ -361,7 +360,12 @@ export default function Chat() {
               <View className="flex-1 bg-black justify-center items-center">
                 <Pressable
                   onPress={() => setSelectedImage(null)}
-                  style={{ position: "absolute", top: 60, right: 20, zIndex: 10 }}
+                  style={{
+                    position: "absolute",
+                    top: 60,
+                    right: 20,
+                    zIndex: 10,
+                  }}
                 >
                   <Ionicons name="close" size={32} color="white" />
                 </Pressable>

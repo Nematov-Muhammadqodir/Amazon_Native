@@ -5,6 +5,7 @@ import { LOGIN, SIGN_UP } from "@/apollo/user/mutation";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
+import { initSocket, disconnectSocket } from "@/libs/socket";
 
 /* ================================
    TYPES
@@ -84,6 +85,8 @@ export const signUp = async (
 
   const user = updateUserInfo(jwtToken); // return decoded user
 
+  initSocket(user._id);
+
   return user;
 };
 /* ================================
@@ -114,6 +117,8 @@ export const login = async (nick: string, password: string) => {
   await saveToken(jwtToken);
 
   const user = updateUserInfo(jwtToken);
+
+  initSocket(user._id);
 
   return user;
 };
@@ -168,7 +173,9 @@ export const hydrateAuth = async () => {
     return;
   }
 
-  updateUserInfo(token);
+  const user = updateUserInfo(token);
+
+  initSocket(user._id);
 };
 
 /* ================================
@@ -176,6 +183,7 @@ export const hydrateAuth = async () => {
 ================================ */
 
 export const logOut = async () => {
+  disconnectSocket();
   await removeToken();
 
   userVar({
