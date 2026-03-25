@@ -86,14 +86,16 @@ export default function Chat() {
   }, [roomId]);
 
   useEffect(() => {
-    socket?.on("newMessage", (incomingMessage: MessageType) => {
+    const handleIncomingMessage = (incomingMessage: MessageType) => {
       setMessages((prev) => {
         if (prev.some((m) => m._id === incomingMessage._id)) return prev;
         return [incomingMessage, ...prev];
       });
-    });
+    };
+
+    socket?.on("newMessage", handleIncomingMessage);
     return () => {
-      socket?.off("newMessage");
+      socket?.off("newMessage", handleIncomingMessage);
     };
   }, []);
 

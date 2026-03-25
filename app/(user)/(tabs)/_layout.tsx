@@ -36,7 +36,7 @@ function TabIcon({ icon, focused }: TabIconProps) {
 export default function UserTabLayout() {
   const user = useReactiveVar(userVar);
   const { socket } = useSocket(user?._id);
-  useSocketNotifications(socket);
+  useSocketNotifications(socket, user?._id);
 
   return (
     <Tabs

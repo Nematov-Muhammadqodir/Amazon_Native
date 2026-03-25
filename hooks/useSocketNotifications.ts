@@ -1,20 +1,24 @@
 import { useEffect } from "react";
-import { Socket } from "socket.io-client";
 import Toast from "react-native-toast-message";
+import { Socket } from "socket.io-client";
 import { useNotificationSound } from "./useNotificationSound";
 
 /**
  * Listens to all socket events and plays KakaoTalk-style sound + vibration.
  * Mount this once in a parent component (e.g., vendor tab layout or root).
  */
-export function useSocketNotifications(socket: Socket | null) {
+export function useSocketNotifications(
+  socket: Socket | null,
+  currentUserId: string
+) {
   const { playNotification } = useNotificationSound();
 
   useEffect(() => {
     if (!socket) return;
 
-    // Chat message received
+    // Chat message received (skip if I'm the sender)
     const handleMessage = (data: any) => {
+      if (String(data?.senderId) === String(currentUserId)) return;
       playNotification();
       Toast.show({
         type: "info",
@@ -60,16 +64,62 @@ export function useSocketNotifications(socket: Socket | null) {
       });
     };
 
-    // Generic notification fallback
+    // Pub/Sub notification handler (product-events, follow-events, chat-events)
     const handleNotification = (data: any) => {
       playNotification();
-      if (data?.title) {
-        Toast.show({
-          type: "info",
-          text1: data.title,
-          text2: data.message || "",
-          visibilityTime: 3000,
-        });
+
+      const message = data?.notificationMessage || "";
+      const type = data?.notificationType;
+
+      switch (type) {
+        case "SEND_MESSAGE":
+          Toast.show({
+            type: "info",
+            text1: `New Message from ${data.senderName}`,
+            text2: message,
+            visibilityTime: 3000,
+          });
+          break;
+        case "SUBSCRIBED":
+          Toast.show({
+            type: "success",
+            text1: "New Follower",
+            text2: message,
+            visibilityTime: 3000,
+          });
+          break;
+        case "UNSUBSCRIBED":
+          Toast.show({
+            type: "info",
+            text1: "Unfollowed",
+            text2: message,
+            visibilityTime: 3000,
+          });
+          break;
+        case "PRODUCT_SOLD":
+          Toast.show({
+            type: "success",
+            text1: "Product Sold!",
+            text2: message,
+            visibilityTime: 4000,
+          });
+          break;
+        case "PRODUCT_DELETED":
+          Toast.show({
+            type: "error",
+            text1: "Product Deleted",
+            text2: message,
+            visibilityTime: 4000,
+          });
+          break;
+        default:
+          Toast.show({
+            type: "info",
+            text1: "Notification",
+            text2: message,
+            visibilityTime: 3000,
+          });
+          break;
       }
     };
 
