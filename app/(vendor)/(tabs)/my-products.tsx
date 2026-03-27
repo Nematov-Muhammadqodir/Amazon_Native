@@ -1,3 +1,4 @@
+import VendorAIChatRoom from "@/components/VendorAIChatRoom";
 import { useFridge } from "@/hooks/vendor/useFridge";
 import { logOut } from "@/libs/auth";
 import { FridgeItemStatus } from "@/libs/enums/fridge.enum";
@@ -7,6 +8,7 @@ import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const STATUS_FILTERS = ["ALL", "ACTIVE", "FINISHED"] as const;
 
 export default function MyProducts() {
+  const [chatVisible, setChatVisible] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
   );
@@ -130,6 +133,7 @@ export default function MyProducts() {
   );
 
   return (
+    <>
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       {/* Header */}
       <View className="px-5 pt-4 pb-3">
@@ -257,5 +261,22 @@ export default function MyProducts() {
         />
       )}
     </SafeAreaView>
+
+      <Pressable
+        onPress={() => setChatVisible(true)}
+        className="absolute bottom-28 right-5 w-14 h-14 rounded-full bg-[#1a5c2e] items-center justify-center"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 6,
+          elevation: 8,
+        }}
+      >
+        <Ionicons name="analytics" size={26} color="white" />
+      </Pressable>
+
+      <VendorAIChatRoom visible={chatVisible} onClose={() => setChatVisible(false)} />
+    </>
   );
 }
